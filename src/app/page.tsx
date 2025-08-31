@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import DishCard from '../components/DishCard';
 import { Button } from '@/components/ui/button';
 import { X } from 'lucide-react';
@@ -12,22 +12,31 @@ export default function Home() {
   const [input, setInput] = useState("")
   const apiKey = process.env.SPOONACULAR_API_KEY
 
+  useEffect(() => {
+    if(ingredients.length < 3) return
+
+    const handler = setTimeout(() => {
+      fetchRecipes()
+    }, 2500)
+
+    return () => clearTimeout(handler)
+  }, [ingredients])
+
   const addIngredient = () => {
     if (!input) return
-    setIngredients([...ingredients, input])
+    setIngredients((prev) => [...prev, input])
     setInput("")
-  };
+  }
 
   const fetchRecipes = async () => {
-    const response = await fetch(`/api/recipes?ingredients=${ingredients.join(",")}?apiKey=${apiKey}`)
+    const response = await fetch(`/api/recipes?ingredients=${ingredients.join(",")}&apiKey=${apiKey}`)
     const data = await response.json()
     setRecipes(data)
-  };
+  }
 
   const removeIngredient = (index: number) => {
     setIngredients(ingredients.filter((_, i) => i !== index))
-  };
-
+  }
 
   return (
     <main className='grid grid-cols-3'>
@@ -59,9 +68,8 @@ export default function Home() {
             </div>
           )}
         </div>
-        <Button onClick={fetchRecipes} className='font-light text-xl bg-[#004E89] text-[#EFEFD0] cursor-pointer hover:bg-[#1A659E]'>Get Recipes</Button>
       </section>
-      <section className='max-h-screen overflow-y-scroll p-4 col-span-2'>
+      <section className='max-h-screen overflow-y-scroll p-4 col-span-2 no-scrollbar'>
           {recipes.map((r) => (
             <div key={r.id}>
               <DishCard  
