@@ -59,7 +59,7 @@ export default async function RecipePage({ params }: RecipePageProps) {
                     </div>
                 </div>
             </section>
-            <section className="flex flex-col items-center justify-center gap-4 bg-[url('/Background.png')] bg-no-repeat bg-center bg-cover p-4 h-screen">
+            <section className="flex flex-col items-center gap-4 bg-[url('/Background.png')] bg-no-repeat bg-center bg-cover p-4 h-screen">
                 <h1 className="text-4xl font-merriweather mb-2">{data.title}</h1>
                 <div className="flex flex-col justify-center items-center">
                     <Image src="/Ornament.png" alt="An ornament" width={300} height={200} className="mb-2"/>

@@ -5,10 +5,18 @@ import DishCard from '../components/DishCard';
 import { Button } from '@/components/ui/button';
 import { X } from 'lucide-react';
 
+type Recipe = {
+  id: number;
+  title: string;
+  image: string;
+  likes: number;
+  missedIngredients: { name: string }[];
+};
+
 export default function Home() {
 
   const [ingredients, setIngredients] = useState<string[]>([])
-  const [recipes, setRecipes] = useState<any[]>([])
+  const [recipes, setRecipes] = useState<Recipe[]>([])
   const [input, setInput] = useState("")
   const apiKey = process.env.SPOONACULAR_API_KEY
 
@@ -22,6 +30,34 @@ export default function Home() {
     return () => clearTimeout(handler)
   }, [ingredients])
 
+  useEffect(() => {
+    const cachedRecipes = localStorage.getItem("recipes")
+    const cachedIngredients = localStorage.getItem("ingredients")
+    
+    if(cachedRecipes) {
+      setRecipes(JSON.parse(cachedRecipes))
+      console.log("parsed recipes")
+    }
+    if(cachedIngredients) {
+      setIngredients(JSON.parse(cachedIngredients))
+      console.log("parsed ingredient")
+    }
+  }, [])
+
+  useEffect(() => {
+    if (recipes.length > 0) {
+      console.log("stored recipes")
+      localStorage.setItem("recipes", JSON.stringify(recipes));
+    }
+  },[recipes])
+
+  useEffect(() => {
+    if (ingredients.length > 0) {
+      console.log("stored ingredients") 
+      localStorage.setItem("ingredients", JSON.stringify(ingredients))
+    }
+  }, [ingredients])
+
   const addIngredient = () => {
     if (!input) return
     setIngredients((prev) => [...prev, input])
@@ -31,7 +67,7 @@ export default function Home() {
   const fetchRecipes = async () => {
     const response = await fetch(`/api/recipes?ingredients=${ingredients.join(",")}&apiKey=${apiKey}`)
     const data = await response.json()
-    setRecipes(data)
+    setRecipes(data.results ?? data);
   }
 
   const removeIngredient = (index: number) => {
@@ -76,7 +112,7 @@ export default function Home() {
                 title={r.title}
                 image={r.image} 
                 likes={r.likes}
-                missingIng={r.missedIngredients.map((ing: any) => ing.name).join(", ")}
+                missingIng={r.missedIngredients.map((ing) => ing.name).join(", ")}
                 id={r.id}
               />
             </div>
