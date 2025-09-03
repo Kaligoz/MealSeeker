@@ -18,7 +18,6 @@ export default function Home() {
   const [ingredients, setIngredients] = useState<string[]>([])
   const [recipes, setRecipes] = useState<Recipe[]>([])
   const [input, setInput] = useState("")
-  const apiKey = process.env.SPOONACULAR_API_KEY
 
   useEffect(() => {
     if(ingredients.length < 3) return
@@ -36,24 +35,18 @@ export default function Home() {
     
     if(cachedRecipes) {
       setRecipes(JSON.parse(cachedRecipes))
-      console.log("parsed recipes")
     }
     if(cachedIngredients) {
       setIngredients(JSON.parse(cachedIngredients))
-      console.log("parsed ingredient")
     }
   }, [])
 
   useEffect(() => {
-    if (recipes.length > 0) {
-      console.log("stored recipes")
-      localStorage.setItem("recipes", JSON.stringify(recipes));
-    }
+    localStorage.setItem("recipes", JSON.stringify(recipes));
   },[recipes])
 
   useEffect(() => {
     if (ingredients.length > 0) {
-      console.log("stored ingredients") 
       localStorage.setItem("ingredients", JSON.stringify(ingredients))
     }
   }, [ingredients])
@@ -65,10 +58,17 @@ export default function Home() {
   }
 
   const fetchRecipes = async () => {
-    const response = await fetch(`/api/recipes?ingredients=${ingredients.join(",")}&apiKey=${apiKey}`)
-    const data = await response.json()
-    setRecipes(data.results ?? data);
+    try {
+      const response = await fetch(`/api/recipes?ingredients=${ingredients.join(",")}`);
+      const data = await response.json();
+      const recipesArray = Array.isArray(data) ? data : [];
+      setRecipes(recipesArray);
+    } catch (error) {
+      console.error("Error fetching recipes:", error);
+      setRecipes([]);
+    }
   }
+
 
   const removeIngredient = (index: number) => {
     setIngredients(ingredients.filter((_, i) => i !== index))
@@ -103,7 +103,9 @@ export default function Home() {
               <button onClick={() => removeIngredient(i)} className='cursor-pointer text-[#9E9E9E]'><X /></button>
             </div>
           )}
+          
         </div>
+        <Button onClick={fetchRecipes} className='font-light text-xl bg-[#004E89] text-[#EFEFD0] cursor-pointer hover:bg-[#1A659E] mx-0.5 my-0.5'>fetch</Button>
       </section>
       <section className='max-h-screen overflow-y-scroll p-4 col-span-2 no-scrollbar'>
           {recipes.map((r) => (

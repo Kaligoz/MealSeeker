@@ -5,18 +5,24 @@ import { Clock, Utensils  } from "lucide-react";
 import phrases from "@/lib/phrases.json";
 
 interface RecipePageProps {
-  params: { slug: string };
+  params: Promise<{ slug: string }>;
 }
 
+type Ingredient = {
+  id: number;
+  original: string;
+  [key: string]: unknown;
+};
+
 export default async function RecipePage({ params }: RecipePageProps) {
-    const { slug } = params;
+    const { slug } = await params;
 
     const randomIndex = Math.floor(Math.random() * phrases.phrases.length);
     const phrase = phrases.phrases[randomIndex];
 
     const apiKey = process.env.SPOONACULAR_API_KEY
     const res = await fetch(
-        `https://api.spoonacular.com/recipes/${slug}/information?apiKey=${apiKey}`,
+        `https:api.spoonacular.com/recipes/${slug}/information?apiKey=${apiKey}`,
         { cache: "no-store" }
     );
 
@@ -65,8 +71,8 @@ export default async function RecipePage({ params }: RecipePageProps) {
                     <Image src="/Ornament.png" alt="An ornament" width={300} height={200} className="mb-2"/>
                     <h2 className="text-3xl font-parisienne text-[#004E89]">Ingredients</h2>
                     <div className="list-disc pl-5">
-                        {data.extendedIngredients.map((ing: any) => (
-                        <li key={ing.id} className="mb-1 font-merriweather">
+                        {data.extendedIngredients.map((ing: Ingredient, index: number) => (
+                        <li key={`${ing.id}-${index}`} className="mb-1 font-merriweather">
                             {ing.original}
                         </li>
                         ))}
