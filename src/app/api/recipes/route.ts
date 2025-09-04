@@ -11,7 +11,7 @@ export async function GET(req: Request) {
     const apiKey = process.env.SPOONACULAR_API_KEY
 
     const res = await fetch(
-        `https://api.spoonacular.com/recipes/findByIngredients?ingredients=${ingredients}&number=5&apiKey=${apiKey}`
+        `https://api.spoonacular.com/recipes/findByIngredients?ingredients=${ingredients}&apiKey=${apiKey}`
     )
 
     const data = await res.json();

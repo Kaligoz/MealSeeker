@@ -21,8 +21,9 @@ export default async function RecipePage({ params }: RecipePageProps) {
     const phrase = phrases.phrases[randomIndex];
 
     const apiKey = process.env.SPOONACULAR_API_KEY
+
     const res = await fetch(
-        `https:api.spoonacular.com/recipes/${slug}/information?apiKey=${apiKey}`,
+        `https://api.spoonacular.com/recipes/${slug}/information?apiKey=${apiKey}`,
         { cache: "no-store" }
     );
 

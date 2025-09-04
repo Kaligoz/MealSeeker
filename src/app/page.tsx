@@ -4,75 +4,64 @@ import { useState, useEffect } from 'react';
 import DishCard from '../components/DishCard';
 import { Button } from '@/components/ui/button';
 import { X } from 'lucide-react';
+import { useDebounce } from 'use-debounce';
 
 type Recipe = {
   id: number;
   title: string;
   image: string;
   likes: number;
-  missedIngredients: { name: string }[];
+  missedIngredients?: { name: string }[];
 };
 
 export default function Home() {
 
-  const [ingredients, setIngredients] = useState<string[]>([])
-  const [recipes, setRecipes] = useState<Recipe[]>([])
+  const [ingredients, setIngredients] = useState<string[]>(() => {
+    const saved = localStorage.getItem('ingredients');
+    return saved ? JSON.parse(saved) : [];
+  })
+  const [recipes, setRecipes] = useState<Recipe[]>(() => {
+    const saved = localStorage.getItem('recipes');
+    return saved ? JSON.parse(saved) : [];
+  })
   const [input, setInput] = useState("")
-
-  useEffect(() => {
-    if(ingredients.length < 3) return
-
-    const handler = setTimeout(() => {
-      fetchRecipes()
-    }, 2500)
-
-    return () => clearTimeout(handler)
-  }, [ingredients])
-
-  useEffect(() => {
-    const cachedRecipes = localStorage.getItem("recipes")
-    const cachedIngredients = localStorage.getItem("ingredients")
-    
-    if(cachedRecipes) {
-      setRecipes(JSON.parse(cachedRecipes))
-    }
-    if(cachedIngredients) {
-      setIngredients(JSON.parse(cachedIngredients))
-    }
-  }, [])
-
-  useEffect(() => {
-    localStorage.setItem("recipes", JSON.stringify(recipes));
-  },[recipes])
-
-  useEffect(() => {
-    if (ingredients.length > 0) {
-      localStorage.setItem("ingredients", JSON.stringify(ingredients))
-    }
-  }, [ingredients])
+  const [debouncedValue] = useDebounce(input, 1000);
 
   const addIngredient = () => {
-    if (!input) return
+    if (!debouncedValue) return
     setIngredients((prev) => [...prev, input])
     setInput("")
   }
 
-  const fetchRecipes = async () => {
-    try {
-      const response = await fetch(`/api/recipes?ingredients=${ingredients.join(",")}`);
-      const data = await response.json();
-      const recipesArray = Array.isArray(data) ? data : [];
-      setRecipes(recipesArray);
-    } catch (error) {
-      console.error("Error fetching recipes:", error);
-      setRecipes([]);
-    }
+  const handleinputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setInput(event.target.value)
   }
 
+  const fetchRecipes = async () => {
+    if (ingredients.length < 3) return;
+    const response = await fetch(`/api/recipes?ingredients=${ingredients.join(",")}`);
+    const data = await response.json();
+    console.log(data)
+    setRecipes(data)
+  }
 
   const removeIngredient = (index: number) => {
     setIngredients(ingredients.filter((_, i) => i !== index))
   }
+
+  useEffect(() => {
+    fetchRecipes()
+  }, [ingredients])
+
+  useEffect(() => {
+    localStorage.setItem("recipes", JSON.stringify(recipes));
+    console.log("recipes chached")
+  },[recipes])
+
+  useEffect(() => {
+    localStorage.setItem("ingredients", JSON.stringify(ingredients));
+    console.log("ingredients chached")
+  }, [ingredients]);
 
   return (
     <main className='grid grid-cols-3'>
@@ -89,9 +78,9 @@ export default function Home() {
         <div className='border border-[#828181] rounded-md bg-white flex flex-row items-center w-fit mb-6'>
           <input 
             value={input}
+            type="text"
             placeholder= "Enter an ingredient..."
-            onChange={(e) => setInput(e.target.value)} 
-            onKeyDown={(e) => e.key === 'Enter' ? addIngredient() : null}
+            onChange={handleinputChange} 
             className='text-[#828181] text-2xl mr-20 px-2 py-0.5 outline-none'
           />
           <Button onClick={addIngredient} className='font-light text-xl bg-[#004E89] text-[#EFEFD0] cursor-pointer hover:bg-[#1A659E] mx-0.5 my-0.5'>Add</Button>
@@ -103,9 +92,7 @@ export default function Home() {
               <button onClick={() => removeIngredient(i)} className='cursor-pointer text-[#9E9E9E]'><X /></button>
             </div>
           )}
-          
         </div>
-        <Button onClick={fetchRecipes} className='font-light text-xl bg-[#004E89] text-[#EFEFD0] cursor-pointer hover:bg-[#1A659E] mx-0.5 my-0.5'>fetch</Button>
       </section>
       <section className='max-h-screen overflow-y-scroll p-4 col-span-2 no-scrollbar'>
           {recipes.map((r) => (
@@ -114,7 +101,7 @@ export default function Home() {
                 title={r.title}
                 image={r.image} 
                 likes={r.likes}
-                missingIng={r.missedIngredients.map((ing) => ing.name).join(", ")}
+                missingIng={r.missedIngredients?.map((ing) => ing.name) || []}
                 id={r.id}
               />
             </div>
