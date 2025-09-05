@@ -7,23 +7,29 @@ import { X } from 'lucide-react';
 import { useDebounce } from 'use-debounce';
 
 type Recipe = {
-  id: number;
-  title: string;
-  image: string;
-  likes: number;
-  missedIngredients?: { name: string }[];
+  id: number,
+  title: string,
+  image: string,
+  likes: number,
+  missedIngredients: { name: string }[],
 };
 
 export default function Home() {
 
   const [ingredients, setIngredients] = useState<string[]>(() => {
-    const saved = localStorage.getItem('ingredients');
-    return saved ? JSON.parse(saved) : [];
+    if (typeof window !== "undefined") {
+      const saved = localStorage.getItem('ingredients')
+      return saved ? JSON.parse(saved) : []
+    }
   })
+
   const [recipes, setRecipes] = useState<Recipe[]>(() => {
-    const saved = localStorage.getItem('recipes');
-    return saved ? JSON.parse(saved) : [];
+    if (typeof window !== "undefined") {
+      const saved = localStorage.getItem('recipes')
+      return saved ? JSON.parse(saved) : []
+    }
   })
+
   const [input, setInput] = useState("")
   const [debouncedValue] = useDebounce(input, 1000);
 
@@ -38,10 +44,8 @@ export default function Home() {
   }
 
   const fetchRecipes = async () => {
-    if (ingredients.length < 3) return;
-    const response = await fetch(`/api/recipes?ingredients=${ingredients.join(",")}`);
-    const data = await response.json();
-    console.log(data)
+    const response = await fetch(`/api/recipes?ingredients=${ingredients.join(",")}`)
+    const data = await response.json()
     setRecipes(data)
   }
 
@@ -50,18 +54,21 @@ export default function Home() {
   }
 
   useEffect(() => {
-    fetchRecipes()
+    if(ingredients.length < 3) {
+      fetchRecipes()
+    }
   }, [ingredients])
 
   useEffect(() => {
-    localStorage.setItem("recipes", JSON.stringify(recipes));
-    console.log("recipes chached")
+    if (typeof window !== "undefined") {
+      localStorage.setItem("recipes", JSON.stringify(recipes))
+    }
   },[recipes])
-
   useEffect(() => {
-    localStorage.setItem("ingredients", JSON.stringify(ingredients));
-    console.log("ingredients chached")
-  }, [ingredients]);
+    if (typeof window !== "undefined") {
+      localStorage.setItem("ingredients", JSON.stringify(ingredients))
+    }
+  }, [ingredients])
 
   return (
     <main className='grid grid-cols-3'>
@@ -108,5 +115,5 @@ export default function Home() {
           ))}
       </section>
     </main>
-  );
-}
+  )
+};

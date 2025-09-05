@@ -10,7 +10,7 @@ interface dishCardProps {
   likes: number,
   missingIng: string[],
   id: number,
-}
+};
 
 const DishCard: FC<dishCardProps> = ({ image, title, likes, missingIng, id }) => {
 
@@ -27,6 +27,6 @@ const DishCard: FC<dishCardProps> = ({ image, title, likes, missingIng, id }) =>
       <Button className='font-light text-xl bg-[#004E89] text-[#EFEFD0] cursor-pointer hover:bg-[#1A659E]'><Link href={`/recipes/${id}`}>See more</Link></Button>
     </div>
   </div>
-}
+};
 
 export default DishCard

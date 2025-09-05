@@ -6,19 +6,19 @@ import phrases from "@/lib/phrases.json";
 
 interface RecipePageProps {
   params: Promise<{ slug: string }>;
-}
+};
 
 type Ingredient = {
-  id: number;
-  original: string;
-  [key: string]: unknown;
+  id: number,
+  original: string,
+  [key: string]: unknown,
 };
 
 export default async function RecipePage({ params }: RecipePageProps) {
-    const { slug } = await params;
+    const { slug } = await params
 
-    const randomIndex = Math.floor(Math.random() * phrases.phrases.length);
-    const phrase = phrases.phrases[randomIndex];
+    const randomIndex = Math.floor(Math.random() * phrases.phrases.length)
+    const phrase = phrases.phrases[randomIndex]
 
     const apiKey = process.env.SPOONACULAR_API_KEY
 
@@ -36,7 +36,7 @@ export default async function RecipePage({ params }: RecipePageProps) {
         ) 
     }
 
-    const data = await res.json();
+    const data = await res.json()
 
     return (
          <main className="grid grid-cols-2 gap-8">
@@ -87,4 +87,4 @@ export default async function RecipePage({ params }: RecipePageProps) {
             </section>   
         </main>
     )
-}
+};

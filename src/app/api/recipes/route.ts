@@ -14,6 +14,6 @@ export async function GET(req: Request) {
         `https://api.spoonacular.com/recipes/findByIngredients?ingredients=${ingredients}&apiKey=${apiKey}`
     )
 
-    const data = await res.json();
-    return NextResponse.json(data);
-}
+    const data = await res.json()
+    return NextResponse.json(data)
+};
