@@ -5,6 +5,14 @@ import DishCard from '../components/DishCard';
 import { Button } from '@/components/ui/button';
 import { X } from 'lucide-react';
 import { useDebounce } from 'use-debounce';
+import MealPlanCard from '@/components/MealPlanCard';
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+} from "@/components/ui/carousel";
 
 type Recipe = {
   id: number,
@@ -72,7 +80,7 @@ export default function Home() {
 
   return (
     <main className='grid grid-cols-3'>
-      <section className="sticky top-0 h-screen bg-[url('/Background.png')] bg-no-repeat bg-center bg-cover p-2 col-span-1">
+      <section className="sticky top-0 h-screen bg-[url('/Background.png')] bg-no-repeat bg-center bg-cover p-10 col-span-1">
         <div className='mb-6'>
           <h1 className="font-merriweather text-4xl font-bold mb-8">Welcome to <span className="font-parisienne text-[#1A659E]">MealSeeker!</span></h1>
           <p className="font-merriweather text-2xl">
@@ -99,6 +107,35 @@ export default function Home() {
               <button onClick={() => removeIngredient(i)} className='cursor-pointer text-[#9E9E9E]'><X /></button>
             </div>
           )}
+        </div>
+        <div>
+          <Carousel>
+            <CarouselContent>
+              <CarouselItem>
+                <MealPlanCard
+                  day="Monday"
+                  recipeBreakfast="Pancakes"
+                  recipeLunch="Chicken Salad"
+                  recipeDinner="Pasta"
+                  recipeIdBreakfast={1}
+                  recipeIdLunch={2}
+                  recipeIdDinner={3}
+                />
+              </CarouselItem>
+
+              <CarouselItem>
+                <MealPlanCard
+                  day="Tuesday"
+                  recipeBreakfast="Omelette"
+                  recipeLunch="Soup"
+                  recipeDinner="Steak"
+                  recipeIdBreakfast={4}
+                  recipeIdLunch={5}
+                  recipeIdDinner={6}
+                />
+              </CarouselItem>
+            </CarouselContent>
+          </Carousel>
         </div>
       </section>
       <section className='max-h-screen overflow-y-scroll p-4 col-span-2 no-scrollbar'>

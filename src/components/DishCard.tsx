@@ -24,7 +24,10 @@ const DishCard: FC<dishCardProps> = ({ image, title, likes, missingIng, id }) =>
       </div>
       <p className='font-merriweather max-w-[480px] mb-3'>Missing ingredients: {missingIng.join(', ')}</p>
       <p className='font-merriweather flex flex-row justify-start items-center gap-2 mb-5'><Heart className='w-6 h-6'/> {likes}</p>
-      <Button className='font-light text-xl bg-[#004E89] text-[#EFEFD0] cursor-pointer hover:bg-[#1A659E]'><Link href={`/recipes/${id}`}>See more</Link></Button>
+      <div className='flex flex-row items-center gap-5'>
+        <Button className='font-light text-xl bg-[#004E89] text-[#EFEFD0] cursor-pointer hover:bg-[#1A659E]'><Link href={`/recipes/${id}`}>See more</Link></Button>
+        <Button className='font-light text-xl bg-[#004E89] text-[#EFEFD0] cursor-pointer hover:bg-[#1A659E]'><Link href='/'>Add to plan</Link></Button>
+      </div>
     </div>
   </div>
 };
