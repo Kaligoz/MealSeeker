@@ -10,12 +10,13 @@ interface dishCardProps {
   likes: number,
   missingIng: string[],
   id: number,
+  onClick: () => void, 
 };
 
-const DishCard: FC<dishCardProps> = ({ image, title, likes, missingIng, id }) => {
+const DishCard: FC<dishCardProps> = ({ image, title, likes, missingIng, id, onClick }) => {
 
   return <div className='flex flex-row items-center gap-10 mb-5'>
-    <Image src={image} alt={title} width={312} height={231} className='rounded-md'/> 
+    <Image src={image} alt={title} width={500} height={700} className='rounded-md'/> 
     <div className='flex flex-col justify-start items-start'>
       <h2 className='font-merriweather text-2xl mb-1.5'>{title}</h2>
       <div className='flex flex-row justify-start items-center gap-3 mb-5'>
@@ -26,7 +27,7 @@ const DishCard: FC<dishCardProps> = ({ image, title, likes, missingIng, id }) =>
       <p className='font-merriweather flex flex-row justify-start items-center gap-2 mb-5'><Heart className='w-6 h-6'/> {likes}</p>
       <div className='flex flex-row items-center gap-5'>
         <Button className='font-light text-xl bg-[#004E89] text-[#EFEFD0] cursor-pointer hover:bg-[#1A659E]'><Link href={`/recipes/${id}`}>See more</Link></Button>
-        <Button className='font-light text-xl bg-[#004E89] text-[#EFEFD0] cursor-pointer hover:bg-[#1A659E]'><Link href='/'>Add to plan</Link></Button>
+        <Button className='font-light text-xl bg-[#004E89] text-[#EFEFD0] cursor-pointer hover:bg-[#1A659E]' onClick={onClick}>Add to plan</Button>
       </div>
     </div>
   </div>

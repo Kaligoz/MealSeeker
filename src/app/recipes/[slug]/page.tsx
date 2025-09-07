@@ -42,7 +42,7 @@ export default async function RecipePage({ params }: RecipePageProps) {
          <main className="grid grid-cols-2 gap-8">
             <section className="p-4 flex flex-col items-center">
                 <Button className="font-light text-xl bg-[#004E89] text-[#EFEFD0] cursor-pointer hover:bg-[#1A659E] w-full mb-6"><Link href="/">Back</Link></Button>
-                <div className="relative mb-6 w-[500px] h-[300px]">
+                <div className="relative mb-6 w-[700px] h-[500px]">
                     <Image 
                         src={data.image}
                         alt={data.title}
@@ -67,10 +67,10 @@ export default async function RecipePage({ params }: RecipePageProps) {
                 </div>
             </section>
             <section className="flex flex-col items-center gap-4 bg-[url('/Background.png')] bg-no-repeat bg-center bg-cover p-4 h-screen">
-                <h1 className="text-4xl font-merriweather mb-2">{data.title}</h1>
-                <div className="flex flex-col justify-center items-center">
-                    <Image src="/Ornament.png" alt="An ornament" width={300} height={200} className="mb-2"/>
-                    <h2 className="text-3xl font-parisienne text-[#004E89]">Ingredients</h2>
+                <h1 className="text-4xl font-merriweather mb-6">{data.title}</h1>
+                <div className="flex flex-col justify-center items-center mb-6">
+                    <Image src="/Ornament.png" alt="An ornament" width={300} height={200} className="mb-4"/>
+                    <h2 className="text-4xl font-parisienne text-[#004E89] mb-6">Ingredients</h2>
                     <div className="list-disc pl-5">
                         {data.extendedIngredients.map((ing: Ingredient, index: number) => (
                         <li key={`${ing.id}-${index}`} className="mb-1 font-merriweather">
@@ -80,8 +80,8 @@ export default async function RecipePage({ params }: RecipePageProps) {
                     </div>
                 </div>
                 <div className="flex flex-col justify-center items-center">
-                    <Image src="/Ornament.png" alt="Nutella Stuffed French Toast" width={300} height={200} className="mb-2"/>
-                    <h2 className="text-3xl font-parisienne text-[#004E89]">Instructions</h2>
+                    <Image src="/Ornament.png" alt="Nutella Stuffed French Toast" width={300} height={200} className="mb-4"/>
+                    <h2 className="text-4xl font-parisienne text-[#004E89] mb-6">Instructions</h2>
                     <p className="text-base font-merriweather">{data.instructions}</p>
                 </div>
             </section>   
