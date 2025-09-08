@@ -33,7 +33,12 @@ const MealPlanCard: FC<MealPlanCardProps> = ({ day, recipeBreakfast, recipeLunch
         />
       </div>
       <h3 className="font-merriweather text-xl text-center">{recipeBreakfast}</h3>
-      <Button className="font-light text-xl bg-[#004E89] text-[#EFEFD0] hover:bg-[#1A659E]"><Link href={`/recipes/${recipeIdBreakfast}`}>See recipe</Link></Button>
+       { recipeBreakfast ? 
+        <Button className="font-light text-xl bg-[#004E89] text-[#EFEFD0] hover:bg-[#1A659E]"><Link href={`/recipes/${recipeIdBreakfast}`}>See recipe</Link></Button> : 
+        <p className='font-merriweather text-xl text-center'>
+          Choose something for Breakfast!
+        </p>
+      }
 
       <div className="flex flex-col justify-center">
         <h3 className="font-merriweather text-2xl mb-2">Lunch:</h3>
@@ -45,13 +50,23 @@ const MealPlanCard: FC<MealPlanCardProps> = ({ day, recipeBreakfast, recipeLunch
         />
       </div>
       <h3 className="font-merriweather text-xl text-center">{recipeLunch}</h3>
-      <Button className="font-light text-xl bg-[#004E89] text-[#EFEFD0] hover:bg-[#1A659E]"><Link href={`/recipes/${recipeIdLunch}`}>See recipe</Link></Button>
+      { recipeLunch ? 
+        <Button className="font-light text-xl bg-[#004E89] text-[#EFEFD0] hover:bg-[#1A659E]"><Link href={`/recipes/${recipeIdLunch}`}>See recipe</Link></Button> : 
+        <p className='font-merriweather text-xl text-center'>
+          Know your next Lunch!
+        </p>
+      }
 
       <div className="flex flex-col justify-center">
         <h3 className="font-merriweather text-2xl">Dinner:</h3>
       </div>
       <h3 className="font-merriweather text-xl text-center">{recipeDinner}</h3>
-      <Button className="font-light text-xl bg-[#004E89] text-[#EFEFD0] hover:bg-[#1A659E]"><Link href={`/recipes/${recipeIdDinner}`}>See recipe</Link></Button>
+      { recipeDinner ? 
+        <Button className="font-light text-xl bg-[#004E89] text-[#EFEFD0] hover:bg-[#1A659E]"><Link href={`/recipes/${recipeIdDinner}`}>See recipe</Link></Button> : 
+        <p className='font-merriweather text-xl text-center'>
+          Plan your Dinner!
+        </p>
+      }
     </div>
   </div>
   )

@@ -23,13 +23,16 @@ type Recipe = {
 export default function Home() {
 
   const [input, setInput] = useState("")
+
   const [debouncedValue] = useDebounce(input, 1000)
+
   const [ingredients, setIngredients] = useState<string[]>([])
   const [recipes, setRecipes] = useState<Recipe[]>([])
-  const [openModal, setOpenModal] = useState<string | null>(null)
 
-  const handleOpenMealPlanAdd = () => setOpenModal('mealPlanAdd')
-  const handleClose = () => setOpenModal(null)
+  const [openModal, setOpenModal] = useState<string | null>(null)
+  const [selectedDish, setSelectedDish] = useState<Recipe | null>(null)
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const [mealPlan, setMealPlan] = useState<Record<string, any>>({})
 
   useEffect(() => {
     const savedIng = localStorage.getItem("ingredients")
@@ -60,16 +63,6 @@ export default function Home() {
     }
   }, [])
 
-  const addIngredient = () => {
-    if (!debouncedValue) return
-    setIngredients((prev) => [...prev, input])
-    setInput("")
-  }
-
-  const handleinputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setInput(event.target.value)
-  }
-
   const fetchRecipes = async () => {
     try {
       const response = await fetch(`/api/recipes?ingredients=${ingredients.join(",")}`)
@@ -86,18 +79,6 @@ export default function Home() {
     }
   }
 
-  const removeIngredient = (index: number) => {
-    setIngredients(ingredients.filter((_, i) => i !== index))
-  }
-
-  useEffect(() => {
-    if(ingredients.length >= 3) {
-      fetchRecipes()
-    } else {
-      setRecipes([]) 
-    }
-  }, [ingredients])
-
   useEffect(() => {
     if (typeof window !== "undefined") {
       localStorage.setItem("recipes", JSON.stringify(recipes))
@@ -108,11 +89,66 @@ export default function Home() {
     if (typeof window !== "undefined") {
       localStorage.setItem("ingredients", JSON.stringify(ingredients))
     }
+
+    if(ingredients.length >= 3) {
+      fetchRecipes()
+    } else {
+      setRecipes([]) 
+    }
   }, [ingredients])
 
+  useEffect(() => {
+    const savedPlan = localStorage.getItem("mealPlan")
+    if (savedPlan) setMealPlan(JSON.parse(savedPlan))
+  }, [])
+
+  const addIngredient = () => {
+    if (!debouncedValue) return
+    setIngredients((prev) => [...prev, input])
+    setInput("")
+  }
+
+  const removeIngredient = (index: number) => {
+    setIngredients(ingredients.filter((_, i) => i !== index))
+  }
+
+  const handleinputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setInput(event.target.value)
+  }
+
+  const handleOpen = (dish: Recipe) => {
+    setOpenModal('mealPlanAdd')
+    setSelectedDish(dish)
+  }
+
+  const handleClose = () => setOpenModal(null)
+
+  const handleSaveMealPlan = (
+    day: string,
+    mealType: "breakfast" | "lunch" | "dinner",
+    dish: Recipe
+  ) => {
+    const updatedPlans = {
+      ...mealPlan,
+      [day]: {
+        ...mealPlan[day],
+        [mealType]: {
+          id: dish.id,
+          title: dish.title,
+          image: dish.image,
+        },
+      },
+    }
+
+    setMealPlan(updatedPlans)
+    localStorage.setItem("mealPlan", JSON.stringify(updatedPlans))
+    setOpenModal(null)
+  }
+
+
   return (
-    <main className='grid grid-cols-2'>
-      <section className="sticky top-0 h-screen bg-[url('/Background.png')] bg-no-repeat bg-center bg-cover p-10 ">
+    <main className='grid grid-cols-3'>
+      <section className="sticky top-0 h-screen bg-[url('/Background.png')] bg-no-repeat bg-center bg-cover p-10 col-span-1">
         <div className='mb-6'>
           <h1 className="font-merriweather text-4xl font-bold mb-8">Welcome to <span className="font-parisienne text-[#1A659E]">MealSeeker!</span></h1>
           <p className="font-merriweather text-2xl">
@@ -130,7 +166,11 @@ export default function Home() {
             onChange={handleinputChange} 
             className='text-[#828181] text-2xl mr-20 px-2 py-0.5 outline-none'
           />
-          <Button onClick={addIngredient} className='font-light text-xl bg-[#004E89] text-[#EFEFD0] cursor-pointer hover:bg-[#1A659E] mx-0.5 my-0.5'>Add</Button>
+          <Button 
+            onClick={addIngredient} 
+            className='font-light text-xl bg-[#004E89] text-[#EFEFD0] cursor-pointer hover:bg-[#1A659E] mx-0.5 my-0.5'>
+            Add
+          </Button>
         </div>
         <div className='mb-6 gap-2 flex flex-wrap max-w-full'>
           {ingredients.map((ing, i) => 
@@ -143,34 +183,26 @@ export default function Home() {
         <div>
           <Carousel>
             <CarouselContent>
-              <CarouselItem>
-                <MealPlanCard
-                  day="Monday"
-                  recipeBreakfast="Pancakes"
-                  recipeLunch="Chicken Salad"
-                  recipeDinner="Pasta"
-                  recipeIdBreakfast={1}
-                  recipeIdLunch={2}
-                  recipeIdDinner={3}
-                />
-              </CarouselItem>
-
-              <CarouselItem>
-                <MealPlanCard
-                  day="Tuesday"
-                  recipeBreakfast="Omelette"
-                  recipeLunch="Soup"
-                  recipeDinner="Steak"
-                  recipeIdBreakfast={4}
-                  recipeIdLunch={5}
-                  recipeIdDinner={6}
-                />
-              </CarouselItem>
+              {["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"].map((day) => (
+                <CarouselItem key={day}>
+                  <MealPlanCard
+                    day={day}
+                    recipeBreakfast={mealPlan[day]?.breakfast?.title || ""}
+                    recipeLunch={mealPlan[day]?.lunch?.title || ""}
+                    recipeDinner={mealPlan[day]?.dinner?.title || ""}
+                    recipeIdBreakfast={mealPlan[day]?.breakfast?.id || 0}
+                    recipeIdLunch={mealPlan[day]?.lunch?.id || 0}
+                    recipeIdDinner={mealPlan[day]?.dinner?.id || 0}
+                  />
+                </CarouselItem>
+              ))}
             </CarouselContent>
           </Carousel>
         </div>
       </section>
-      <section className='max-h-screen overflow-y-scroll p-4 no-scrollbar'>
+      <section className='col-span-2 ml-16 h-screen'>
+        <h1 className='font-merriweather text-3xl mb-4 pt-4'>Found <span className='text-[#004E89]'>{recipes.length} meals</span> from your fridge:</h1>
+        <div className='h-[calc(100vh-5rem)] overflow-y-auto p-4 no-scrollbar'>
           {recipes.map((r) => (
             <div key={r.id}>
               <DishCard  
@@ -179,12 +211,13 @@ export default function Home() {
                 likes={r.likes}
                 missingIng={r.missedIngredients?.map((ing) => ing.name) || []}
                 id={r.id}
-                onClick={handleOpenMealPlanAdd}
+                onClick={() => handleOpen(r)}
               />
             </div>
           ))}
+        </div>
       </section>
-      <MealPlanAddModal isOpen={openModal === 'mealPlanAdd'} onClose={handleClose}/>
+      <MealPlanAddModal isOpen={openModal === 'mealPlanAdd'} onClose={handleClose} dish={selectedDish} onSave={handleSaveMealPlan}/>
     </main>
   )
 };
