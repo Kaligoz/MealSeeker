@@ -63,22 +63,6 @@ export default function Home() {
     }
   }, [])
 
-  const fetchRecipes = async () => {
-    try {
-      const response = await fetch(`/api/recipes?ingredients=${ingredients.join(",")}`)
-      const data = await response.json()
-      if (Array.isArray(data)) {
-          setRecipes(data)
-        } else {
-          console.error("Unexpected API response:", data)
-          setRecipes([]) 
-        }
-    } catch (err) {
-      console.error("Failed to fetch recipes:", err)
-      setRecipes([])
-    }
-  }
-
   useEffect(() => {
     if (typeof window !== "undefined") {
       localStorage.setItem("recipes", JSON.stringify(recipes))
@@ -86,6 +70,22 @@ export default function Home() {
   },[recipes])
 
   useEffect(() => {
+    const fetchRecipes = async () => {
+        try {
+          const response = await fetch(`/api/recipes?ingredients=${ingredients.join(",")}`)
+          const data = await response.json()
+          if (Array.isArray(data)) {
+              setRecipes(data)
+            } else {
+              console.error("Unexpected API response:", data)
+              setRecipes([]) 
+            }
+        } catch (err) {
+          console.error("Failed to fetch recipes:", err)
+          setRecipes([])
+        }
+      }
+
     if (typeof window !== "undefined") {
       localStorage.setItem("ingredients", JSON.stringify(ingredients))
     }
