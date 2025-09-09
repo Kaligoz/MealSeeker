@@ -217,7 +217,7 @@ export default function Home() {
           ))}
         </div>
       </section>
-      <MealPlanAddModal isOpen={openModal === 'mealPlanAdd'} onClose={handleClose} dish={selectedDish} onSave={handleSaveMealPlan}/>
+      <MealPlanAddModal isOpen={openModal === 'mealPlanAdd'} onClose={handleClose} dish={selectedDish} onSave={handleSaveMealPlan} currentMeals={mealPlan}/>
     </main>
   )
 };

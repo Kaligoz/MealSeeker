@@ -2,6 +2,14 @@ import { useEffect, useRef, useState } from "react";
 import { Button } from "./ui/button";
 import Image from "next/image";
 
+type MealPlanAddModalProps = {
+    isOpen: boolean;
+    onClose: () => void;
+    dish: Recipe | null;
+    onSave: (day: string, mealType: "breakfast" | "lunch" | "dinner", dish: Recipe) => void; 
+    currentMeals?: WeaklyMealPlan;
+}
+
 type Recipe = {
   id: number,
   title: string,
@@ -10,33 +18,19 @@ type Recipe = {
   missedIngredients: { name: string }[],
 };
 
-type MealPlanAddModalProps = {
-    isOpen: boolean;
-    onClose: () => void;
-    dish: Recipe | null;
-    onSave: (day: string, mealType: "breakfast" | "lunch" | "dinner", dish: Recipe) => void; 
-    currentMeals?: {
+type WeaklyMealPlan = {
+    [day: string]: {
         breakfast?: Recipe;
         lunch?: Recipe;
         dinner?: Recipe;
-    }  
-}
+    }
+};
 
 export default function MealPlanAddModal({ isOpen, onClose, dish, onSave, currentMeals }: MealPlanAddModalProps) {
 
     const modalRef = useRef<HTMLDivElement>(null)
-    const [selectedDay, setSelectedDay] = useState<string | null>(null);
-    const days = ["Mn","Tu","We","Th","Fr","Sa","Su"]
-
-    const dayMap: Record<string, string> = {
-        Mn: "Monday",
-        Tu: "Tuesday",
-        We: "Wednesday",
-        Th: "Thursday",
-        Fr: "Friday",
-        Sa: "Saturday",
-        Su: "Sunday",
-    }
+    const [selectedDay, setSelectedDay] = useState<string | null>(null)
+    const days = ["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"]
 
     useEffect(() => {
         const handleKeyDown = (event: KeyboardEvent) => {
@@ -81,10 +75,10 @@ export default function MealPlanAddModal({ isOpen, onClose, dish, onSave, curren
                 <Button
                 key={day}
                 onClick={() => setSelectedDay(day)}
-                className={`w-12 h-12 flex items-center justify-center border border-black rounded-full text-xl font-light font-merriweather ${
-                    selectedDay === day
-                    ? "bg-[#004E89] text-[#EFEFD0]"
-                    : "bg-[#EFEFD0] text-black hover:bg-[#D5D5BB]"
+                className={`flex items-center justify-center border border-black rounded-full text-xl font-light font-merriweather bg-[#EFEFD0] text-black hover:bg-[#b3b39c] cursor-pointer ${
+                    selectedDay === day 
+                    ? 'bg-[#b3b39c]' 
+                    : ''
                 }`}
                 >
                 {day}
@@ -92,65 +86,56 @@ export default function MealPlanAddModal({ isOpen, onClose, dish, onSave, curren
             ))}
             </div>
 
-            {["breakfast", "lunch", "dinner"].map((mealType) => (
-            <div key={mealType} className="flex flex-col mb-4">
-                <h4 className="text-2xl text-black font-parisienne capitalize">
-                {mealType}:
-                </h4>
+            {["breakfast", "lunch", "dinner"].map((mealType) => {
+                const meal = selectedDay
+                    ? currentMeals?.[selectedDay]?.[mealType as "breakfast" | "lunch" | "dinner"]
+                    : undefined;
 
-                {currentMeals?.[mealType as "breakfast" | "lunch" | "dinner"] ? (
-                <div className="flex items-center gap-3 mt-2">
-                    <Image
-                    src={
-                        currentMeals[mealType as "breakfast" | "lunch" | "dinner"]
-                        ?.image || "/placeholder.png"
-                    }
-                    alt={
-                        currentMeals[mealType as "breakfast" | "lunch" | "dinner"]
-                        ?.title || "Meal"
-                    }
-                    width={50}
-                    height={50}
-                    className="rounded-md"
-                    />
-                    <p className="text-lg">
-                    {
-                        currentMeals[mealType as "breakfast" | "lunch" | "dinner"]
-                        ?.title
-                    }
-                    </p>
-                    <Button
-                    disabled={!selectedDay || !dish}
-                    onClick={() =>
-                        dish &&
-                        selectedDay &&
-                        onSave(dayMap[selectedDay], mealType as "breakfast" | "lunch" | "dinner", dish)
-                    }
-                    className="ml-auto bg-[#004E89] text-[#EFEFD0] hover:bg-[#1A659E]"
-                    >
-                    Change
-                    </Button>
-                </div>
-                ) : (
-                <Button
-                    disabled={!selectedDay || !dish}
-                    onClick={() =>
-                        dish &&
-                        selectedDay &&
-                        onSave(
-                        dayMap[selectedDay], 
-                        mealType as "breakfast" | "lunch" | "dinner",
-                        dish
-                        )
-                    }
-                    className="mt-2 bg-[#004E89] text-[#EFEFD0] hover:bg-[#1A659E]"
-                    >
-                    Add
-                </Button>
-                )}
+                return (
+                    <div key={mealType} className="flex flex-col mb-4">
+                    <h4 className="text-4xl text-black font-parisienne capitalize">
+                        {mealType}:
+                    </h4>
+
+                    {meal ? (
+                        <div className="flex items-center gap-3 mt-2">
+                        <Image
+                            src={meal.image}
+                            alt={meal.title}
+                            width={200}
+                            height={100}
+                            className="rounded-md"
+                        />
+                        <p className="text-2xl font-merriweather">{meal.title}</p>
+                        <Button
+                            disabled={!selectedDay || !dish}
+                            onClick={() =>
+                            dish &&
+                            selectedDay &&
+                            onSave(selectedDay, mealType as "breakfast" | "lunch" | "dinner", dish)
+                            }
+                            className="ml-auto bg-[#004E89] text-[#EFEFD0] hover:bg-[#1A659E] text-xl cursor-pointer"
+                        >
+                            Change
+                        </Button>
+                        </div>
+                    ) : (
+                        <Button
+                        disabled={!selectedDay || !dish}
+                        onClick={() =>
+                            dish &&
+                            selectedDay &&
+                            onSave(selectedDay, mealType as "breakfast" | "lunch" | "dinner", dish)
+                        }
+                        className="mt-2 bg-[#004E89] text-[#EFEFD0] hover:bg-[#1A659E] text-xl cursor-pointer"
+                        >
+                        Add
+                        </Button>
+                    )}
+                    </div>
+                );
+            })}
             </div>
-            ))}
-        </div>
         </div>
     )
 };

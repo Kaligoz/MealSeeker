@@ -36,7 +36,7 @@ const MealPlanCard: FC<MealPlanCardProps> = ({ day, recipeBreakfast, recipeLunch
        { recipeBreakfast ? 
         <Button className="font-light text-xl bg-[#004E89] text-[#EFEFD0] hover:bg-[#1A659E]"><Link href={`/recipes/${recipeIdBreakfast}`}>See recipe</Link></Button> : 
         <p className='font-merriweather text-xl text-center'>
-          Choose something for Breakfast!
+          Choose something for Breakfast
         </p>
       }
 
@@ -53,7 +53,7 @@ const MealPlanCard: FC<MealPlanCardProps> = ({ day, recipeBreakfast, recipeLunch
       { recipeLunch ? 
         <Button className="font-light text-xl bg-[#004E89] text-[#EFEFD0] hover:bg-[#1A659E]"><Link href={`/recipes/${recipeIdLunch}`}>See recipe</Link></Button> : 
         <p className='font-merriweather text-xl text-center'>
-          Know your next Lunch!
+          Know your next Lunch
         </p>
       }
 
@@ -64,7 +64,7 @@ const MealPlanCard: FC<MealPlanCardProps> = ({ day, recipeBreakfast, recipeLunch
       { recipeDinner ? 
         <Button className="font-light text-xl bg-[#004E89] text-[#EFEFD0] hover:bg-[#1A659E]"><Link href={`/recipes/${recipeIdDinner}`}>See recipe</Link></Button> : 
         <p className='font-merriweather text-xl text-center'>
-          Plan your Dinner!
+          Plan your Dinner
         </p>
       }
     </div>
