@@ -123,11 +123,7 @@ export default function Home() {
 
   const handleClose = () => setOpenModal(null)
 
-  const handleSaveMealPlan = (
-    day: string,
-    mealType: "breakfast" | "lunch" | "dinner",
-    dish: Recipe
-  ) => {
+  const handleSaveMealPlan = ( day: string, mealType: "breakfast" | "lunch" | "dinner", dish: Recipe) => {
     const updatedPlans = {
       ...mealPlan,
       [day]: {
@@ -143,6 +139,15 @@ export default function Home() {
     setMealPlan(updatedPlans)
     localStorage.setItem("mealPlan", JSON.stringify(updatedPlans))
     setOpenModal(null)
+  }
+
+  const handleDeleteMealFromPlan = ( day: string, mealType: "breakfast" | "lunch" | "dinner") => {
+    const updatedPlan = {
+      ... mealPlan, [day] : {...mealPlan[day], [mealType]: undefined,},
+    }
+
+    setMealPlan(updatedPlan)
+    localStorage.setItem("mealPlan", JSON.stringify(updatedPlan))
   }
 
 
@@ -193,6 +198,7 @@ export default function Home() {
                     recipeIdBreakfast={mealPlan[day]?.breakfast?.id || 0}
                     recipeIdLunch={mealPlan[day]?.lunch?.id || 0}
                     recipeIdDinner={mealPlan[day]?.dinner?.id || 0}
+                    onDelete={handleDeleteMealFromPlan}
                   />
                 </CarouselItem>
               ))}

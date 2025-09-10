@@ -12,9 +12,10 @@ interface MealPlanCardProps {
   recipeIdBreakfast: number,
   recipeIdLunch: number,
   recipeIdDinner: number,
+  onDelete: (day: string, mealType: "breakfast" | "lunch" | "dinner") => void, 
 };
 
-const MealPlanCard: FC<MealPlanCardProps> = ({ day, recipeBreakfast, recipeLunch, recipeDinner, recipeIdBreakfast, recipeIdLunch, recipeIdDinner }) => {
+const MealPlanCard: FC<MealPlanCardProps> = ({ day, recipeBreakfast, recipeLunch, recipeDinner, recipeIdBreakfast, recipeIdLunch, recipeIdDinner, onDelete }) => {
   return (
   <div className='rounded-md bg-[#EFEFD0] p-2'>
     <div className="flex items-center justify-center gap-4 mb-6">
@@ -34,7 +35,10 @@ const MealPlanCard: FC<MealPlanCardProps> = ({ day, recipeBreakfast, recipeLunch
       </div>
       <h3 className="font-merriweather text-xl text-center">{recipeBreakfast}</h3>
        { recipeBreakfast ? 
-        <Button className="font-light text-xl bg-[#004E89] text-[#EFEFD0] hover:bg-[#1A659E]"><Link href={`/recipes/${recipeIdBreakfast}`}>See recipe</Link></Button> : 
+        <div className='gap-2 flex flex-row itmes-center justify-between'>
+          <Button className="font-light bg-[#004E89] text-xl text-[#EFEFD0] hover:bg-[#1A659E]"><Link href={`/recipes/${recipeIdBreakfast}`}>See recipe</Link></Button> 
+          <Button className="font-light bg-[#ff1313] text-xl text-[#EFEFD0] hover:bg-[#c20d0d] cursor-pointer" onClick={() => onDelete(day, "breakfast")}>Delete</Button>
+        </div> : 
         <p className='font-merriweather text-xl text-center'>
           Choose something for Breakfast
         </p>
@@ -51,7 +55,10 @@ const MealPlanCard: FC<MealPlanCardProps> = ({ day, recipeBreakfast, recipeLunch
       </div>
       <h3 className="font-merriweather text-xl text-center">{recipeLunch}</h3>
       { recipeLunch ? 
-        <Button className="font-light text-xl bg-[#004E89] text-[#EFEFD0] hover:bg-[#1A659E]"><Link href={`/recipes/${recipeIdLunch}`}>See recipe</Link></Button> : 
+        <div className='gap-2 flex flex-row itmes-center justify-between'>
+          <Button className="font-light bg-[#004E89] text-xl text-[#EFEFD0] hover:bg-[#1A659E]"><Link href={`/recipes/${recipeIdLunch}`}>See recipe</Link></Button> 
+          <Button className="font-light bg-[#ff1313] text-xl text-[#EFEFD0] hover:bg-[#c20d0d] cursor-pointer" onClick={() => onDelete(day, "lunch")}>Delete</Button>
+        </div> : 
         <p className='font-merriweather text-xl text-center'>
           Know your next Lunch
         </p>
@@ -62,7 +69,10 @@ const MealPlanCard: FC<MealPlanCardProps> = ({ day, recipeBreakfast, recipeLunch
       </div>
       <h3 className="font-merriweather text-xl text-center">{recipeDinner}</h3>
       { recipeDinner ? 
-        <Button className="font-light text-xl bg-[#004E89] text-[#EFEFD0] hover:bg-[#1A659E]"><Link href={`/recipes/${recipeIdDinner}`}>See recipe</Link></Button> : 
+        <div className='gap-2 flex flex-row itmes-center justify-between'>
+          <Button className="font-light bg-[#004E89] text-xl text-[#EFEFD0] hover:bg-[#1A659E]"><Link href={`/recipes/${recipeIdDinner}`}>See recipe</Link></Button> 
+          <Button className="font-light bg-[#ff1313] text-xl text-[#EFEFD0] hover:bg-[#c20d0d] cursor-pointer" onClick={() => onDelete(day, "dinner")}>Delete</Button>
+        </div>  : 
         <p className='font-merriweather text-xl text-center'>
           Plan your Dinner
         </p>
