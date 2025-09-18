@@ -63,7 +63,7 @@ export default function MealPlanAddModal({ isOpen, onClose, dish, onSave, curren
         <div
             className={`fixed inset-0 z-50 flex items-center justify-center bg-black/50 transition-opacity duration-300 ${
             isOpen ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
-            }`}>
+            } p-4 md:p-8`}>
             <div ref={modalRef} className="bg-[#EFEFD0] rounded-xl p-6 relative min-w-[300px]">
 
             <Button onClick={onClose} className="absolute top-2 right-2 cursor-pointer bg-[#EFEFD0] hover:text-black hover:bg-[#EFEFD0] text-black font-bold border-none">
@@ -75,7 +75,7 @@ export default function MealPlanAddModal({ isOpen, onClose, dish, onSave, curren
                 <Button
                 key={day}
                 onClick={() => setSelectedDay(day)}
-                className={`flex items-center justify-center border border-black rounded-full text-xl font-light font-merriweather bg-[#EFEFD0] text-black hover:bg-[#b3b39c] cursor-pointer ${
+                className={`flex items-center justify-center border border-black rounded-full md:text-xl text-lg font-light font-merriweather bg-[#EFEFD0] text-black hover:bg-[#b3b39c] cursor-pointer ${
                     selectedDay === day 
                     ? 'bg-[#b3b39c]' 
                     : ''
@@ -93,7 +93,7 @@ export default function MealPlanAddModal({ isOpen, onClose, dish, onSave, curren
 
                 return (
                     <div key={mealType} className="flex flex-col mb-4">
-                    <h4 className="text-4xl text-black font-parisienne capitalize">
+                    <h4 className="md:text-4xl text-2xl text-black font-parisienne capitalize">
                         {mealType}:
                     </h4>
 
@@ -106,7 +106,7 @@ export default function MealPlanAddModal({ isOpen, onClose, dish, onSave, curren
                             height={100}
                             className="rounded-md"
                         />
-                        <p className="text-2xl font-merriweather">{meal.title}</p>
+                        <p className="md:text-2xl text-lg font-merriweather">{meal.title}</p>
                         <Button
                             disabled={!selectedDay || !dish}
                             onClick={() =>
@@ -114,7 +114,7 @@ export default function MealPlanAddModal({ isOpen, onClose, dish, onSave, curren
                             selectedDay &&
                             onSave(selectedDay, mealType as "breakfast" | "lunch" | "dinner", dish)
                             }
-                            className="ml-auto bg-[#004E89] text-[#EFEFD0] hover:bg-[#1A659E] text-xl cursor-pointer"
+                            className="ml-auto bg-[#004E89] text-[#EFEFD0] hover:bg-[#1A659E] md:text-xl text-base cursor-pointer"
                         >
                             Change
                         </Button>
@@ -127,7 +127,7 @@ export default function MealPlanAddModal({ isOpen, onClose, dish, onSave, curren
                             selectedDay &&
                             onSave(selectedDay, mealType as "breakfast" | "lunch" | "dinner", dish)
                         }
-                        className="mt-2 bg-[#004E89] text-[#EFEFD0] hover:bg-[#1A659E] text-xl cursor-pointer"
+                        className="mt-2 bg-[#004E89] text-[#EFEFD0] hover:bg-[#1A659E] md:text-xl text-base cursor-pointer"
                         >
                         Add
                         </Button>

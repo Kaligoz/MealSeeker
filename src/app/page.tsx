@@ -152,8 +152,8 @@ export default function Home() {
 
 
   return (
-    <main className='grid grid-cols-3'>
-      <section className="sticky top-0 h-screen bg-[url('/Background.png')] bg-no-repeat bg-center bg-cover p-10 col-span-1">
+    <main className='md:grid md:grid-cols-3 flex flex-col min-h-screen'>
+      <section className="md:sticky md:top-0 h-screen lg:bg-[url('/Background.png')] lg:bg-no-repeat lg:bg-center lg:bg-cover p-10 md:col-span-1">
         <div className='mb-6'>
           <h1 className="font-merriweather text-4xl font-bold mb-8">Welcome to <span className="font-parisienne text-[#1A659E]">MealSeeker!</span></h1>
           <p className="font-merriweather text-2xl">
@@ -206,7 +206,7 @@ export default function Home() {
           </Carousel>
         </div>
       </section>
-      <section className='col-span-2 ml-16 h-screen'>
+      <section className='md:col-span-2 ml-0 md:ml-16 h-auto min-h-screen mt-40 md:mt-0 p-2 md:p-0'>
         <h1 className='font-merriweather text-3xl mb-4 pt-4'>Found <span className='text-[#004E89]'>{recipes.length} meals</span> from your fridge:</h1>
         <div className='h-[calc(100vh-5rem)] overflow-y-auto p-4 no-scrollbar'>
           {recipes.map((r) => (

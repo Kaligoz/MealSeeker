@@ -39,10 +39,10 @@ export default async function RecipePage({ params }: RecipePageProps) {
     const data = await res.json()
 
     return (
-         <main className="grid grid-cols-2 gap-8">
+         <main className="md:grid md:grid-cols-2 md:gap-8 gap-0 flex flex-col">
             <section className="p-4 flex flex-col items-center">
                 <Button className="font-light text-xl bg-[#004E89] text-[#EFEFD0] cursor-pointer hover:bg-[#1A659E] w-full mb-6"><Link href="/">Back</Link></Button>
-                <div className="relative mb-6 w-[700px] h-[500px]">
+                <div className="relative mb-6 md:w-[700px] md:h-[500px] w-[350px] h-[250px]">
                     <Image 
                         src={data.image}
                         alt={data.title}
@@ -66,14 +66,14 @@ export default async function RecipePage({ params }: RecipePageProps) {
                     </div>
                 </div>
             </section>
-            <section className="flex flex-col items-center gap-4 bg-[url('/Background.png')] bg-no-repeat bg-center bg-cover p-4 h-screen">
-                <h1 className="text-4xl font-merriweather mb-6">{data.title}</h1>
+            <section className="flex flex-col items-center gap-4 md:bg-[url('/Background.png')] md:bg-no-repeat md:bg-center md:bg-cover p-4 h-screen">
+                <h1 className="md:text-4xl text-2xl font-merriweather mb-6">{data.title}</h1>
                 <div className="flex flex-col justify-center items-center mb-6">
                     <Image src="/Ornament.png" alt="An ornament" width={300} height={200} className="mb-4"/>
-                    <h2 className="text-4xl font-parisienne text-[#004E89] mb-6">Ingredients</h2>
+                    <h2 className="md:text-4xl text-2xl font-parisienne text-[#004E89] mb-6">Ingredients</h2>
                     <div className="list-disc pl-5">
                         {data.extendedIngredients.map((ing: Ingredient, index: number) => (
-                        <li key={`${ing.id}-${index}`} className="mb-1 font-merriweather">
+                        <li key={`${ing.id}-${index}`} className="mb-1 font-merriweather md:text-base text-sm">
                             {ing.original}
                         </li>
                         ))}
@@ -81,8 +81,8 @@ export default async function RecipePage({ params }: RecipePageProps) {
                 </div>
                 <div className="flex flex-col justify-center items-center">
                     <Image src="/Ornament.png" alt="Nutella Stuffed French Toast" width={300} height={200} className="mb-4"/>
-                    <h2 className="text-4xl font-parisienne text-[#004E89] mb-6">Instructions</h2>
-                    <p className="text-base font-merriweather">{data.instructions}</p>
+                    <h2 className="md:text-4xl text-2xl font-parisienne text-[#004E89] mb-6">Instructions</h2>
+                    <p className="md:text-base text-sm font-merriweather">{data.instructions}</p>
                 </div>
             </section>   
         </main>
