@@ -1,8 +1,7 @@
 "use client"
 
 import { useEffect, useState } from "react";
-import AchievementItem from "./AchievementItem";
-import data from "@/lib/achievementData.json";
+import achievementData from "@/lib/achievementData.json";
 
 interface Achievement {
     icon: string,
@@ -12,22 +11,20 @@ interface Achievement {
 };
 
 const AchievementList = () => {
-    const [achievements, setAchievements] = useState<Achievement[]>([]);
+    const [achievements, setAchievements] = useState<Achievement[]>(() => {
+        const stored = localStorage.getItem("achievements")
+        if (stored) {
+        try {
+            const parsed = JSON.parse(stored)
+            if (Array.isArray(parsed)) return parsed
+        } catch {}
+        }
+        return achievementData
+    })
 
     useEffect(() => {
-        const stored = localStorage.getItem("achievements");
-        if (stored) {
-            const parsed = JSON.parse(stored)
-            if (Array.isArray(parsed)) {
-                setAchievements(parsed);
-            } else if (parsed.achievementData) {
-                setAchievements(parsed.achievementData);
-            }
-        } else {
-            localStorage.setItem("achievements", JSON.stringify(data.achievementData))
-            setAchievements(data.achievementData)
-        }
-    }, [])
+        localStorage.setItem("achievements", JSON.stringify(achievements))
+    }, [achievements])
 
     const unlockAchievement = (title: string) => {
         const updated = achievements.map((a) =>
@@ -42,21 +39,18 @@ const AchievementList = () => {
     return (
         <div className="grid grid-cols-2 gap-6">
         {achievements.map(({ icon, title, description, isUnlocked }) => (
-            <AchievementItem
-            key={title}
-            logo={icon}
-            title={title}
-            description={description}
-            isUnlocked={isUnlocked}
-            />
+            <div className={`flex flex-col items-center justify-between ${isUnlocked ? "grayscale-0" : "grayscale"}`} key={title}>
+                <h1 className='text-2xl'>{icon}</h1>
+                <p className='text-lg font-parisienne'>{title}</p>
+                <p className='text-lg font-merriweather'>{description}</p>
+            </div>
         ))}
 
         {/*test button to unlock one badge */}
         <button
-            onClick={() => unlockAchievement("New Chef")}
+            onClick={() => unlockAchievement("Chef’s Apprentice")}
             className="mt-4 px-4 py-2 bg-blue-500 text-white rounded"
-        >
-            Unlock &quot;New Chef&quot;
+        >Chef’s Apprentice
         </button>
         </div>
     );

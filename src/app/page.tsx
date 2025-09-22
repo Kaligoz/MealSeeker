@@ -247,10 +247,9 @@ export default function Home() {
             <div className="mx-auto w-full max-w-sm">
               <DrawerHeader>
                 <DrawerTitle className='font-merriweather text-2xl'>Your streak: 🔥{streak} !</DrawerTitle>
-                <DrawerDescription>Dont Stop now!</DrawerDescription>
+                <DrawerDescription className='font-merriweather text-xl'>Your achievements!</DrawerDescription>
               </DrawerHeader>
               <div className='flex flex-col items-center justify-center'>
-                <h3 className='font-merriweather text-xl'>Your achievements!</h3>
                 <div>
                   <AchievementList />
                 </div>

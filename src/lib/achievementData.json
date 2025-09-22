@@ -1,5 +1,4 @@
-{
-  "achievementData": [
+[
     {
       "icon": "🥕",
       "title": "Pantry Stocker",
@@ -49,4 +48,4 @@
       "isUnlocked": false
     }
   ]
-}
+
