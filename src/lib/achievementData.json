@@ -1,0 +1,52 @@
+{
+  "achievementData": [
+    {
+      "icon": "🥕",
+      "title": "Pantry Stocker",
+      "description": "Add 5 ingredients to search at once",
+      "isUnlocked": false
+    },
+    {
+      "icon": "🍳",
+      "title": "New Chef",
+      "description": "Open your first recipe page",
+      "isUnlocked": false
+    },
+    {
+      "icon": "📅",
+      "title": "Daily Planner",
+      "description": "Fill all 3 meal slots in a day",
+      "isUnlocked": false
+    },
+    {
+      "icon": "📆",
+      "title": "Master Planner",
+      "description": "Fill all 7 days with meals",
+      "isUnlocked": false
+    },
+    {
+      "icon": "🔄",
+      "title": "Switcher",
+      "description": "Replace at least one recipe in the meal plan",
+      "isUnlocked": false
+    },
+    {
+      "icon": "🍲",
+      "title": "Food Explorer",
+      "description": "Open 5 different recipe pages",
+      "isUnlocked": false
+    },
+    {
+      "icon": "👨‍🍳",
+      "title": "Chef’s Apprentice",
+      "description": "Visit 10 recipes",
+      "isUnlocked": false
+    },
+    {
+      "icon": "⭐",
+      "title": "Consistency",
+      "description": "Keep a 7-day streak",
+      "isUnlocked": false
+    }
+  ]
+}

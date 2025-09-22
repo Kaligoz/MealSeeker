@@ -18,7 +18,6 @@ interface MealPlanCardProps {
 const MealPlanCard: FC<MealPlanCardProps> = ({ day, recipeBreakfast, recipeLunch, recipeDinner, recipeIdBreakfast, recipeIdLunch, recipeIdDinner, onDelete }) => {
   return (
     <div className="rounded-md bg-[#EFEFD0] p-4 sm:p-6">
-      {/* Header with arrows + day */}
       <div className="flex items-center justify-center gap-4 mb-6">
         <CarouselPrevious className="static translate-y-0 w-6 h-6" />
         <h2 className="font-parisienne text-2xl sm:text-3xl md:text-4xl text-center">

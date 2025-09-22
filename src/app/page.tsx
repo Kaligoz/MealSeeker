@@ -11,6 +11,17 @@ import {
   CarouselContent,
   CarouselItem
 } from "@/components/ui/carousel";
+import {
+  Drawer,
+  DrawerClose,
+  DrawerContent,
+  DrawerDescription,
+  DrawerFooter,
+  DrawerHeader,
+  DrawerTitle,
+  DrawerTrigger,
+} from "@/components/ui/drawer";
+import AchievementList from '@/components/AchievementList';
 
 type Recipe = {
   id: number,
@@ -27,12 +38,25 @@ export default function Home() {
   const [debouncedValue] = useDebounce(input, 1000)
 
   const [ingredients, setIngredients] = useState<string[]>([])
+  const [streak, setStreak] = useState<number>()
   const [recipes, setRecipes] = useState<Recipe[]>([])
 
   const [openModal, setOpenModal] = useState<string | null>(null)
   const [selectedDish, setSelectedDish] = useState<Recipe | null>(null)
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [mealPlan, setMealPlan] = useState<Record<string, any>>({})
+
+  // all useEffects on the main page
+
+  useEffect(() => {
+    const savedStreak = localStorage.getItem("streak")
+    if (savedStreak) {
+      const parsed = JSON.parse(savedStreak)
+      setStreak(parsed.currentStreak || 0)
+    } else {
+      setStreak(0);
+    }
+  }, [])
 
   useEffect(() => {
     const savedIng = localStorage.getItem("ingredients")
@@ -102,7 +126,19 @@ export default function Home() {
     if (savedPlan) setMealPlan(JSON.parse(savedPlan))
   }, [])
 
+  // adding ingredients functions
+
   const addIngredient = () => {
+    const streakData = localStorage.getItem("streak")
+      ? JSON.parse(localStorage.getItem("streak")!)
+      : null
+
+    if (!streakData) {
+      startStreak()
+    } else {
+      updateStreak()
+    }
+
     if (!debouncedValue) return
     setIngredients((prev) => [...prev, input])
     setInput("")
@@ -115,6 +151,8 @@ export default function Home() {
   const handleinputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setInput(event.target.value)
   }
+
+  // Meal plan functions
 
   const handleOpen = (dish: Recipe) => {
     setOpenModal('mealPlanAdd')
@@ -150,6 +188,44 @@ export default function Home() {
     localStorage.setItem("mealPlan", JSON.stringify(updatedPlan))
   }
 
+  // Streak functions
+
+  function startStreak() {
+    const today = new Date().toDateString()
+    const streakData = {
+      currentStreak: 1,        
+      lastActiveDate: today,   
+    };
+    localStorage.setItem("streak", JSON.stringify(streakData))
+    setStreak(1)
+    return streakData;
+  }
+
+  function updateStreak() {
+    const today = new Date().toDateString()
+    const streakData = JSON.parse(localStorage.getItem("streak") || "{}") || {
+      currentStreak: 0,
+      lastActiveDate: null,
+    }
+
+    if (streakData.lastActiveDate === today) {
+      return streakData;
+    }
+
+    const yesterday = new Date()
+    yesterday.setDate(yesterday.getDate() - 1)
+
+    if (streakData.lastActiveDate === yesterday.toDateString()) {
+      streakData.currentStreak += 1
+    } else {
+      streakData.currentStreak = 1
+    }
+
+    streakData.lastActiveDate = today
+    localStorage.setItem("streak", JSON.stringify(streakData))
+    setStreak(streakData.currentStreak)
+    return streakData;
+  }
 
   return (
     <main className='md:grid md:grid-cols-3 flex flex-col min-h-screen'>
@@ -163,6 +239,31 @@ export default function Home() {
             Let’s find your perfect meal together!
           </p>
         </div>
+        <Drawer>
+          <DrawerTrigger asChild>
+            <Button className="font-light text-xl bg-[#004E89] text-[#EFEFD0] cursor-pointer hover:bg-[#1A659E] mx-0.5 my-0.5 mb-6">Open Drawer</Button>
+          </DrawerTrigger>
+          <DrawerContent>
+            <div className="mx-auto w-full max-w-sm">
+              <DrawerHeader>
+                <DrawerTitle className='font-merriweather text-2xl'>Your streak: 🔥{streak} !</DrawerTitle>
+                <DrawerDescription>Dont Stop now!</DrawerDescription>
+              </DrawerHeader>
+              <div className='flex flex-col items-center justify-center'>
+                <h3 className='font-merriweather text-xl'>Your achievements!</h3>
+                <div>
+                  <AchievementList />
+                </div>
+              </div>
+              <DrawerFooter>
+                <DrawerClose asChild>
+                  <Button variant="outline" className='font-light text-xl bg-[#004E89] text-[#EFEFD0] cursor-pointer hover:bg-[#1A659E] mx-0.5 my-0.5'>Cancel</Button>
+                </DrawerClose>
+              </DrawerFooter>
+            </div>
+          </DrawerContent>
+        </Drawer>
+        
         <div className='border border-[#828181] rounded-md bg-white flex flex-row items-center w-fit mb-6'>
           <input 
             value={input}
