@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Button } from "./ui/button";
 import Image from "next/image";
+import { useAchievement } from "@/components/hooks/useAchievement";
 
 type MealPlanAddModalProps = {
     isOpen: boolean;
@@ -30,6 +31,7 @@ export default function MealPlanAddModal({ isOpen, onClose, dish, onSave, curren
 
     const modalRef = useRef<HTMLDivElement>(null)
     const [selectedDay, setSelectedDay] = useState<string | null>(null)
+    const { unlockAchievement } = useAchievement()
     const days = ["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"]
 
     useEffect(() => {
@@ -109,11 +111,12 @@ export default function MealPlanAddModal({ isOpen, onClose, dish, onSave, curren
                         <p className="md:text-2xl text-lg font-merriweather">{meal.title}</p>
                         <Button
                             disabled={!selectedDay || !dish}
-                            onClick={() =>
-                            dish &&
-                            selectedDay &&
-                            onSave(selectedDay, mealType as "breakfast" | "lunch" | "dinner", dish)
-                            }
+                            onClick={() => {
+                                if (dish && selectedDay) {
+                                    onSave(selectedDay, mealType as "breakfast" | "lunch" | "dinner", dish)
+                                    unlockAchievement("Switcher")
+                                }
+                            }}
                             className="ml-auto bg-[#004E89] text-[#EFEFD0] hover:bg-[#1A659E] md:text-xl text-base cursor-pointer"
                         >
                             Change

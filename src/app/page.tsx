@@ -22,6 +22,7 @@ import {
   DrawerTrigger,
 } from "@/components/ui/drawer";
 import AchievementList from '@/components/AchievementList';
+import { useAchievement } from '@/components/hooks/useAchievement';
 
 type Recipe = {
   id: number,
@@ -34,6 +35,8 @@ type Recipe = {
 export default function Home() {
 
   const [input, setInput] = useState("")
+
+  const { unlockAchievement } = useAchievement();
 
   const [debouncedValue] = useDebounce(input, 1000)
 
@@ -142,6 +145,10 @@ export default function Home() {
     if (!debouncedValue) return
     setIngredients((prev) => [...prev, input])
     setInput("")
+
+    if (ingredients.length === 5) {
+      unlockAchievement("Pantry Stocker")
+    }
   }
 
   const removeIngredient = (index: number) => {
@@ -177,6 +184,17 @@ export default function Home() {
     setMealPlan(updatedPlans)
     localStorage.setItem("mealPlan", JSON.stringify(updatedPlans))
     setOpenModal(null)
+
+    if (mealPlan.breakfast && mealPlan.lunch && mealPlan.dinner) {
+      unlockAchievement("Daily Planner")
+    }
+
+    const allDaysFilled = Object.values(mealPlan).every(
+      (day: { breakfast?: Recipe; lunch?: Recipe; dinner?: Recipe }) =>
+        day.breakfast && day.lunch && day.dinner
+    )
+
+    if (allDaysFilled) unlockAchievement("Master Planner")
   }
 
   const handleDeleteMealFromPlan = ( day: string, mealType: "breakfast" | "lunch" | "dinner") => {
@@ -195,7 +213,7 @@ export default function Home() {
     const streakData = {
       currentStreak: 1,        
       lastActiveDate: today,   
-    };
+    }
     localStorage.setItem("streak", JSON.stringify(streakData))
     setStreak(1)
     return streakData;
@@ -209,7 +227,7 @@ export default function Home() {
     }
 
     if (streakData.lastActiveDate === today) {
-      return streakData;
+      return streakData
     }
 
     const yesterday = new Date()
@@ -221,10 +239,14 @@ export default function Home() {
       streakData.currentStreak = 1
     }
 
+    if (streakData.currentStreak === 7) {
+      unlockAchievement("Consistency")
+    } 
+
     streakData.lastActiveDate = today
     localStorage.setItem("streak", JSON.stringify(streakData))
     setStreak(streakData.currentStreak)
-    return streakData;
+    return streakData
   }
 
   return (
