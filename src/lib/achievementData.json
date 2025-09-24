@@ -30,18 +30,6 @@
       "isUnlocked": false
     },
     {
-      "icon": "🍲",
-      "title": "Food Explorer",
-      "description": "Open 5 different recipe pages",
-      "isUnlocked": false
-    },
-    {
-      "icon": "👨‍🍳",
-      "title": "Chef’s Apprentice",
-      "description": "Visit 10 recipes",
-      "isUnlocked": false
-    },
-    {
       "icon": "⭐",
       "title": "Consistency",
       "description": "Keep a 7-day streak",

@@ -1,8 +1,9 @@
 import { FC } from 'react';
-import Image from "next/image";
 import { Heart } from 'lucide-react';
 import { Button } from './ui/button';
-import Link from 'next/link';
+import { useAchievement } from '@/components/hooks/useAchievement';
+import { useRouter } from 'next/navigation';
+import Image from "next/image";
 
 interface dishCardProps {
   image: string,
@@ -15,6 +16,20 @@ interface dishCardProps {
 
 const DishCard: FC<dishCardProps> = ({ image, title, likes, missingIng, id, onClick }) => {
 
+  const { unlockAchievement } = useAchievement()
+  const router = useRouter()
+
+  const handleSeeMore = () => {
+    const stored = localStorage.getItem("recipeVisits")
+    const visits = stored ? parseInt(stored) : 0
+    const updatedVisits = visits + 1
+    localStorage.setItem("recipeVisits", updatedVisits.toString())
+
+    if (updatedVisits === 1) unlockAchievement("First Recipe")
+
+    router.push(`/recipes/${id}`)
+  }
+
   return <div className='flex flex-row items-center gap-10 mb-5'>
     <Image src={image} alt={title} width={500} height={700} className='rounded-md'/> 
     <div className='flex flex-col justify-start items-start'>
@@ -26,7 +41,7 @@ const DishCard: FC<dishCardProps> = ({ image, title, likes, missingIng, id, onCl
       <p className='font-merriweather max-w-[480px] mb-3'>Missing ingredients: {missingIng.join(', ')}</p>
       <p className='font-merriweather flex flex-row justify-start items-center gap-2 mb-5'><Heart className='w-6 h-6'/> {likes}</p>
       <div className='flex flex-row items-center gap-5'>
-        <Button className='font-light md:text-xl text-base bg-[#004E89] text-[#EFEFD0] cursor-pointer hover:bg-[#1A659E]'><Link href={`/recipes/${id}`}>See more</Link></Button>
+        <Button className='font-light md:text-xl text-base bg-[#004E89] text-[#EFEFD0] cursor-pointer hover:bg-[#1A659E]' onClick={handleSeeMore}>See more</Button>
         <Button className='font-light md:text-xl text-base bg-[#004E89] text-[#EFEFD0] cursor-pointer hover:bg-[#1A659E]' onClick={onClick}>Add to plan</Button>
       </div>
     </div>

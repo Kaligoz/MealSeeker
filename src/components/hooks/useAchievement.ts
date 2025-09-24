@@ -10,16 +10,16 @@ interface Achievement {
     isUnlocked: boolean,
 };
 
+
 export function useAchievement() {
-    const [achievements, setAchievements] = useState<Achievement[]>(() => {
-    if (typeof window !== "undefined") {
-      const stored = localStorage.getItem("achievements")
-      if (stored) {
-        try {
-          const parsed = JSON.parse(stored)
-          if (Array.isArray(parsed)) return parsed
-        } catch {}
-      }
+  const [achievements, setAchievements] = useState<Achievement[]>(() => {
+    if (typeof window === "undefined") return achievementData
+    const stored = localStorage.getItem("achievements")
+    if (stored) {
+      try {
+        const parsed = JSON.parse(stored)
+        if (Array.isArray(parsed)) return parsed
+      } catch {}
     }
     return achievementData
   })
@@ -29,14 +29,22 @@ export function useAchievement() {
   }, [achievements])
 
   const unlockAchievement = useCallback((title: string) => {
-    setAchievements((prev) => {
-      const updated = prev.map((a) =>
-        a.title === title ? { ...a, isUnlocked: true } : a
-      )
-      localStorage.setItem("achievements", JSON.stringify(updated))
-      return updated;
-    })
+  setAchievements((prev) => {
+    const achievement = prev.find(a => a.title === title)
+    if (!achievement || achievement.isUnlocked) return prev
+
+    const updated = prev.map(a =>
+      a.title === title ? { ...a, isUnlocked: true } : a
+    )
+
+    return updated;
+  })
+}, [])
+
+  const resetAchievements = useCallback(() => {
+    setAchievements(achievementData)
+    localStorage.setItem("achievements", JSON.stringify(achievementData))
   }, [])
 
-  return { achievements, unlockAchievement }
-};
+  return { achievements, unlockAchievement, resetAchievements }
+}

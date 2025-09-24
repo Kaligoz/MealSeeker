@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import { Merriweather, Parisienne } from "next/font/google";
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import "./globals.css";
 
 const merriweather = Merriweather({
@@ -29,6 +31,7 @@ export default function RootLayout({
         className={`${merriweather.variable} ${parisienne.variable} antialiased`}
       >
         {children}
+        <ToastContainer position="bottom-right" autoClose={3000} />
       </body>
     </html>
   );

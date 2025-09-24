@@ -1,11 +1,9 @@
 "use client"
 
 import { useState, useEffect } from 'react';
-import DishCard from '../components/DishCard';
 import { Button } from '@/components/ui/button';
 import { useDebounce } from 'use-debounce';
-import MealPlanCard from '@/components/MealPlanCard';
-import MealPlanAddModal from '@/components/MealPlanAddModal';
+import { useAchievement } from '@/components/hooks/useAchievement';
 import {
   Carousel,
   CarouselContent,
@@ -21,8 +19,10 @@ import {
   DrawerTitle,
   DrawerTrigger,
 } from "@/components/ui/drawer";
+import MealPlanCard from '@/components/MealPlanCard';
+import MealPlanAddModal from '@/components/MealPlanAddModal';
 import AchievementList from '@/components/AchievementList';
-import { useAchievement } from '@/components/hooks/useAchievement';
+import DishCard from '../components/DishCard';
 
 type Recipe = {
   id: number,
@@ -36,7 +36,7 @@ export default function Home() {
 
   const [input, setInput] = useState("")
 
-  const { unlockAchievement } = useAchievement();
+  const { unlockAchievement, resetAchievements } = useAchievement()
 
   const [debouncedValue] = useDebounce(input, 1000)
 
@@ -132,21 +132,25 @@ export default function Home() {
   // adding ingredients functions
 
   const addIngredient = () => {
+    let updated
+
     const streakData = localStorage.getItem("streak")
       ? JSON.parse(localStorage.getItem("streak")!)
       : null
 
     if (!streakData) {
-      startStreak()
+      updated = startStreak()
     } else {
-      updateStreak()
+      updated = updateStreak()
     }
+
+    console.log("✅ Streak after adding ingredient:", updated)
 
     if (!debouncedValue) return
     setIngredients((prev) => [...prev, input])
     setInput("")
 
-    if (ingredients.length === 5) {
+    if (ingredients.length === 4) {
       unlockAchievement("Pantry Stocker")
     }
   }
@@ -181,20 +185,24 @@ export default function Home() {
       },
     }
 
-    setMealPlan(updatedPlans)
-    localStorage.setItem("mealPlan", JSON.stringify(updatedPlans))
     setOpenModal(null)
 
-    if (mealPlan.breakfast && mealPlan.lunch && mealPlan.dinner) {
+    const dayMeals = updatedPlans[day]
+    if (dayMeals.breakfast && dayMeals.lunch && dayMeals.dinner) {
       unlockAchievement("Daily Planner")
     }
 
-    const allDaysFilled = Object.values(mealPlan).every(
-      (day: { breakfast?: Recipe; lunch?: Recipe; dinner?: Recipe }) =>
-        day.breakfast && day.lunch && day.dinner
+    const allDaysFilled = Object.values(updatedPlans).every(
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      (d: any) => d.breakfast && d.lunch && d.dinner
     )
 
-    if (allDaysFilled) unlockAchievement("Master Planner")
+    if (allDaysFilled) {
+      unlockAchievement("Master Planner")
+    }
+
+    setMealPlan(updatedPlans)
+    localStorage.setItem("mealPlan", JSON.stringify(updatedPlans))
   }
 
   const handleDeleteMealFromPlan = ( day: string, mealType: "breakfast" | "lunch" | "dinner") => {
@@ -208,20 +216,26 @@ export default function Home() {
 
   // Streak functions
 
+  function getTodayKey() {
+    return new Date().toISOString().split("T")[0]
+  }
+
   function startStreak() {
-    const today = new Date().toDateString()
+    const today = getTodayKey()
+
     const streakData = {
       currentStreak: 1,        
       lastActiveDate: today,   
     }
     localStorage.setItem("streak", JSON.stringify(streakData))
-    setStreak(1)
-    return streakData;
+    setStreak(streakData.currentStreak)
+    return streakData
   }
 
   function updateStreak() {
-    const today = new Date().toDateString()
-    const streakData = JSON.parse(localStorage.getItem("streak") || "{}") || {
+    const today =  getTodayKey()
+
+    const streakData = JSON.parse(localStorage.getItem("streak") || "null") || {
       currentStreak: 0,
       lastActiveDate: null,
     }
@@ -232,20 +246,22 @@ export default function Home() {
 
     const yesterday = new Date()
     yesterday.setDate(yesterday.getDate() - 1)
+    const yesterdayKey = yesterday.toISOString().split("T")[0]
 
-    if (streakData.lastActiveDate === yesterday.toDateString()) {
+    if (streakData.lastActiveDate === yesterdayKey) {
       streakData.currentStreak += 1
     } else {
       streakData.currentStreak = 1
     }
 
+    streakData.lastActiveDate = today
+    localStorage.setItem("streak", JSON.stringify(streakData))
+    setStreak(streakData.currentStreak)
+
     if (streakData.currentStreak === 7) {
       unlockAchievement("Consistency")
     } 
 
-    streakData.lastActiveDate = today
-    localStorage.setItem("streak", JSON.stringify(streakData))
-    setStreak(streakData.currentStreak)
     return streakData
   }
 
@@ -284,6 +300,10 @@ export default function Home() {
             </div>
           </DrawerContent>
         </Drawer>
+
+        <Button onClick={resetAchievements} className="ml-2">
+          Reset Achievements
+        </Button>
         
         <div className='border border-[#828181] rounded-md bg-white flex flex-row items-center w-fit mb-6'>
           <input 
