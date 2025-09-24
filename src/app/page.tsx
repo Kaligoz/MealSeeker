@@ -3,25 +3,25 @@
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { useDebounce } from 'use-debounce';
-import { useAchievement } from '@/components/hooks/useAchievement';
+// import { useAchievement } from '@/components/hooks/useAchievement';
 import {
   Carousel,
   CarouselContent,
   CarouselItem
 } from "@/components/ui/carousel";
-import {
-  Drawer,
-  DrawerClose,
-  DrawerContent,
-  DrawerDescription,
-  DrawerFooter,
-  DrawerHeader,
-  DrawerTitle,
-  DrawerTrigger,
-} from "@/components/ui/drawer";
+// import {
+//   Drawer,
+//   DrawerClose,
+//   DrawerContent,
+//   DrawerDescription,
+//   DrawerFooter,
+//   DrawerHeader,
+//   DrawerTitle,
+//   DrawerTrigger,
+// } from "@/components/ui/drawer";
 import MealPlanCard from '@/components/MealPlanCard';
 import MealPlanAddModal from '@/components/MealPlanAddModal';
-import AchievementList from '@/components/AchievementList';
+// import AchievementList from '@/components/AchievementList';
 import DishCard from '../components/DishCard';
 
 type Recipe = {
@@ -36,7 +36,7 @@ export default function Home() {
 
   const [input, setInput] = useState("")
 
-  const { unlockAchievement, resetAchievements } = useAchievement()
+  // const { unlockAchievement, resetAchievements } = useAchievement()
 
   const [debouncedValue] = useDebounce(input, 1000)
 
@@ -96,33 +96,29 @@ export default function Home() {
     }
   },[recipes])
 
-  useEffect(() => {
+useEffect(() => {
+  if (typeof window !== "undefined") {
+    localStorage.setItem("ingredients", JSON.stringify(ingredients))
+  }
+}, [ingredients])
+
+// Fetch recipes only
+useEffect(() => {
+  if (ingredients.length >= 3) {
     const fetchRecipes = async () => {
-        try {
-          const response = await fetch(`/api/recipes?ingredients=${ingredients.join(",")}`)
-          const data = await response.json()
-          if (Array.isArray(data)) {
-              setRecipes(data)
-            } else {
-              console.error("Unexpected API response:", data)
-              setRecipes([]) 
-            }
-        } catch (err) {
-          console.error("Failed to fetch recipes:", err)
-          setRecipes([])
+      try {
+        const response = await fetch(`/api/recipes?ingredients=${ingredients.join(",")}`)
+        const data = await response.json()
+        if (Array.isArray(data)) {
+          setRecipes(data)
         }
+      } catch (err) {
+        console.error("Failed to fetch recipes:", err)
       }
-
-    if (typeof window !== "undefined") {
-      localStorage.setItem("ingredients", JSON.stringify(ingredients))
     }
-
-    if(ingredients.length >= 3) {
-      fetchRecipes()
-    } else {
-      setRecipes([]) 
-    }
-  }, [ingredients])
+    fetchRecipes()
+  }
+}, [ingredients])
 
   useEffect(() => {
     const savedPlan = localStorage.getItem("mealPlan")
@@ -150,9 +146,9 @@ export default function Home() {
     setIngredients((prev) => [...prev, input])
     setInput("")
 
-    if (ingredients.length === 4) {
-      unlockAchievement("Pantry Stocker")
-    }
+    // if (ingredients.length === 4) {
+    //   unlockAchievement("Pantry Stocker")
+    // }
   }
 
   const removeIngredient = (index: number) => {
@@ -187,19 +183,19 @@ export default function Home() {
 
     setOpenModal(null)
 
-    const dayMeals = updatedPlans[day]
-    if (dayMeals.breakfast && dayMeals.lunch && dayMeals.dinner) {
-      unlockAchievement("Daily Planner")
-    }
+    // const dayMeals = updatedPlans[day]
+    // if (dayMeals.breakfast && dayMeals.lunch && dayMeals.dinner) {
+    //   unlockAchievement("Daily Planner")
+    // }
 
-    const allDaysFilled = Object.values(updatedPlans).every(
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      (d: any) => d.breakfast && d.lunch && d.dinner
-    )
+    // const allDaysFilled = Object.values(updatedPlans).every(
+    //   // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    //   (d: any) => d.breakfast && d.lunch && d.dinner
+    // )
 
-    if (allDaysFilled) {
-      unlockAchievement("Master Planner")
-    }
+    // if (allDaysFilled) {
+    //   unlockAchievement("Master Planner")
+    // }
 
     setMealPlan(updatedPlans)
     localStorage.setItem("mealPlan", JSON.stringify(updatedPlans))
@@ -258,9 +254,9 @@ export default function Home() {
     localStorage.setItem("streak", JSON.stringify(streakData))
     setStreak(streakData.currentStreak)
 
-    if (streakData.currentStreak === 7) {
-      unlockAchievement("Consistency")
-    } 
+    // if (streakData.currentStreak === 7) {
+    //   unlockAchievement("Consistency")
+    // } 
 
     return streakData
   }
@@ -270,14 +266,17 @@ export default function Home() {
       <section className="md:sticky md:top-0 h-screen lg:bg-[url('/Background.png')] lg:bg-no-repeat lg:bg-center lg:bg-cover p-10 md:col-span-1">
         <div className='mb-6'>
           <h1 className="font-merriweather text-4xl font-bold mb-8">Welcome to <span className="font-parisienne text-[#1A659E]">MealSeeker!</span></h1>
-          <p className="font-merriweather text-2xl">
+          <p className="font-merriweather text-xl">
             Enter the ingredients you have.<br/>
-            We’ll show recipes you can make.<br/> 
-            Everyone knows the cooking struggle.<br/>
-            Let’s find your perfect meal together!
+            We’ll show you recipes you can cook.<br/> 
+            Keep your streak alive by coming back every day.<br/>
+            Let’s find your perfect meal together! 
           </p>
         </div>
-        <Drawer>
+        <div className='font-merriweather text-2xl mb-6'>
+          <h3>Your streak: 🔥{streak}</h3>
+        </div>
+        {/* <Drawer>
           <DrawerTrigger asChild>
             <Button className="font-light text-xl bg-[#004E89] text-[#EFEFD0] cursor-pointer hover:bg-[#1A659E] mx-0.5 my-0.5 mb-6">Open Drawer</Button>
           </DrawerTrigger>
@@ -303,7 +302,7 @@ export default function Home() {
 
         <Button onClick={resetAchievements} className="ml-2">
           Reset Achievements
-        </Button>
+        </Button> */}
         
         <div className='border border-[#828181] rounded-md bg-white flex flex-row items-center w-fit mb-6'>
           <input 
