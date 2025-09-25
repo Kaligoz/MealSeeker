@@ -40,9 +40,25 @@ export default function Home() {
 
   const [debouncedValue] = useDebounce(input, 1000)
 
-  const [ingredients, setIngredients] = useState<string[]>([])
+  const [ingredients, setIngredients] = useState<string[]>(() => {
+    const saved = localStorage.getItem("ingredients")
+    return saved ? JSON.parse(saved) : []
+  })
+
+  useEffect(() => {
+    localStorage.setItem("ingredients", JSON.stringify(ingredients))
+  }, [ingredients])
+ 
+  const [recipes, setRecipes] = useState<Recipe[]>(() => {
+    const saved = localStorage.getItem("recipes")
+    return saved ? JSON.parse(saved) : []
+  })
+
+  useEffect(() => {
+    localStorage.setItem("recipes", JSON.stringify(recipes))
+  }, [recipes])
+
   const [streak, setStreak] = useState<number>()
-  const [recipes, setRecipes] = useState<Recipe[]>([])
 
   const [openModal, setOpenModal] = useState<string | null>(null)
   const [selectedDish, setSelectedDish] = useState<Recipe | null>(null)
@@ -90,35 +106,35 @@ export default function Home() {
     }
   }, [])
 
-  useEffect(() => {
-    if (typeof window !== "undefined") {
-      localStorage.setItem("recipes", JSON.stringify(recipes))
-    }
-  },[recipes])
+  // useEffect(() => {
+  //   if (typeof window !== "undefined") {
+  //     localStorage.setItem("recipes", JSON.stringify(recipes))
+  //   }
+  // },[recipes])
 
-useEffect(() => {
-  if (typeof window !== "undefined") {
-    localStorage.setItem("ingredients", JSON.stringify(ingredients))
-  }
-}, [ingredients])
+  // useEffect(() => {
+  //   if (typeof window !== "undefined") {
+  //     localStorage.setItem("ingredients", JSON.stringify(ingredients))
+  //   }
+  // }, [ingredients])
 
 // Fetch recipes only
-useEffect(() => {
-  if (ingredients.length >= 3) {
-    const fetchRecipes = async () => {
-      try {
-        const response = await fetch(`/api/recipes?ingredients=${ingredients.join(",")}`)
-        const data = await response.json()
-        if (Array.isArray(data)) {
-          setRecipes(data)
+  useEffect(() => {
+    if (ingredients.length >= 3) {
+      const fetchRecipes = async () => {
+        try {
+          const response = await fetch(`/api/recipes?ingredients=${ingredients.join(",")}`)
+          const data = await response.json()
+          if (Array.isArray(data)) {
+            setRecipes(data)
+          }
+        } catch (err) {
+          console.error("Failed to fetch recipes:", err)
         }
-      } catch (err) {
-        console.error("Failed to fetch recipes:", err)
       }
+      fetchRecipes()
     }
-    fetchRecipes()
-  }
-}, [ingredients])
+  }, [ingredients])
 
   useEffect(() => {
     const savedPlan = localStorage.getItem("mealPlan")
@@ -128,19 +144,15 @@ useEffect(() => {
   // adding ingredients functions
 
   const addIngredient = () => {
-    let updated
-
     const streakData = localStorage.getItem("streak")
       ? JSON.parse(localStorage.getItem("streak")!)
       : null
 
     if (!streakData) {
-      updated = startStreak()
+      startStreak()
     } else {
-      updated = updateStreak()
+      updateStreak()
     }
-
-    console.log("✅ Streak after adding ingredient:", updated)
 
     if (!debouncedValue) return
     setIngredients((prev) => [...prev, input])
