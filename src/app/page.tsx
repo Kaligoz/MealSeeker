@@ -40,19 +40,24 @@ export default function Home() {
 
   const [debouncedValue] = useDebounce(input, 1000)
 
-  const [ingredients, setIngredients] = useState<string[]>(() => {
-    const saved = localStorage.getItem("ingredients")
-    return saved ? JSON.parse(saved) : []
-  })
+  const [ingredients, setIngredients] = useState<string[]>([])
+  const [recipes, setRecipes] = useState<Recipe[]>([])
+
+  useEffect(() => {
+    const savedIngredients = localStorage.getItem("ingredients")
+    if (savedIngredients) {
+      setIngredients(JSON.parse(savedIngredients))
+    }
+
+    const savedRecipes = localStorage.getItem("recipes")
+    if (savedRecipes) {
+      setRecipes(JSON.parse(savedRecipes))
+    }
+  }, [])
 
   useEffect(() => {
     localStorage.setItem("ingredients", JSON.stringify(ingredients))
   }, [ingredients])
- 
-  const [recipes, setRecipes] = useState<Recipe[]>(() => {
-    const saved = localStorage.getItem("recipes")
-    return saved ? JSON.parse(saved) : []
-  })
 
   useEffect(() => {
     localStorage.setItem("recipes", JSON.stringify(recipes))
