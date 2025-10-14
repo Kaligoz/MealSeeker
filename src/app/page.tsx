@@ -3,25 +3,13 @@
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { useDebounce } from 'use-debounce';
-// import { useAchievement } from '@/components/hooks/useAchievement';
 import {
   Carousel,
   CarouselContent,
   CarouselItem
 } from "@/components/ui/carousel";
-// import {
-//   Drawer,
-//   DrawerClose,
-//   DrawerContent,
-//   DrawerDescription,
-//   DrawerFooter,
-//   DrawerHeader,
-//   DrawerTitle,
-//   DrawerTrigger,
-// } from "@/components/ui/drawer";
 import MealPlanCard from '@/components/MealPlanCard';
 import MealPlanAddModal from '@/components/MealPlanAddModal';
-// import AchievementList from '@/components/AchievementList';
 import DishCard from '../components/DishCard';
 
 type Recipe = {
@@ -33,122 +21,83 @@ type Recipe = {
 };
 
 export default function Home() {
-
   const [input, setInput] = useState("")
-
-  // const { unlockAchievement, resetAchievements } = useAchievement()
-
   const [debouncedValue] = useDebounce(input, 1000)
 
   const [ingredients, setIngredients] = useState<string[]>([])
   const [recipes, setRecipes] = useState<Recipe[]>([])
-
-  useEffect(() => {
-    const savedIngredients = localStorage.getItem("ingredients")
-    if (savedIngredients) {
-      setIngredients(JSON.parse(savedIngredients))
-    }
-
-    const savedRecipes = localStorage.getItem("recipes")
-    if (savedRecipes) {
-      setRecipes(JSON.parse(savedRecipes))
-    }
-  }, [])
-
-  useEffect(() => {
-    localStorage.setItem("ingredients", JSON.stringify(ingredients))
-  }, [ingredients])
-
-  useEffect(() => {
-    localStorage.setItem("recipes", JSON.stringify(recipes))
-  }, [recipes])
+  const [hasLoaded, setHasLoaded] = useState(false)
 
   const [streak, setStreak] = useState<number>()
-
   const [openModal, setOpenModal] = useState<string | null>(null)
   const [selectedDish, setSelectedDish] = useState<Recipe | null>(null)
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [mealPlan, setMealPlan] = useState<Record<string, any>>({})
 
-  // all useEffects on the main page
-
+  // Load from localStorage on mount
   useEffect(() => {
-    const savedStreak = localStorage.getItem("streak")
-    if (savedStreak) {
-      const parsed = JSON.parse(savedStreak)
-      setStreak(parsed.currentStreak || 0)
-    } else {
-      setStreak(0);
+    if (typeof window === "undefined") return
+
+    try {
+      const savedIngredients = JSON.parse(localStorage.getItem("ingredients") || "[]")
+      const savedRecipes = JSON.parse(localStorage.getItem("recipes") || "[]")
+      const savedPlan = JSON.parse(localStorage.getItem("mealPlan") || "{}")
+      const savedStreak = JSON.parse(localStorage.getItem("streak") || "null")
+
+      if (Array.isArray(savedIngredients)) setIngredients(savedIngredients)
+      if (Array.isArray(savedRecipes)) setRecipes(savedRecipes)
+      if (savedPlan && typeof savedPlan === "object") setMealPlan(savedPlan)
+      if (savedStreak) setStreak(savedStreak.currentStreak || 0)
+      else setStreak(0)
+    } catch (err) {
+      console.error("Error loading from localStorage:", err)
+    } finally {
+      setHasLoaded(true)
     }
   }, [])
 
+  // Persist to localStorage
   useEffect(() => {
-    const savedIng = localStorage.getItem("ingredients")
-    const savedRec = localStorage.getItem("recipes")
+    if (hasLoaded) {
+      localStorage.setItem("ingredients", JSON.stringify(ingredients))
+    }
+  }, [ingredients, hasLoaded])
 
-    if (savedIng) {
+  useEffect(() => {
+    if (hasLoaded) {
+      localStorage.setItem("recipes", JSON.stringify(recipes))
+    }
+  }, [recipes, hasLoaded])
+
+  useEffect(() => {
+    if (hasLoaded) {
+      localStorage.setItem("mealPlan", JSON.stringify(mealPlan))
+    }
+  }, [mealPlan, hasLoaded])
+
+  // Fetch recipes when ingredients change
+  useEffect(() => {
+    if (!hasLoaded || ingredients.length < 3) return
+
+    const fetchRecipes = async () => {
       try {
-        const parsed = JSON.parse(savedIng)
-        if (Array.isArray(parsed)) {
-          setIngredients(parsed)
+        const response = await fetch(`/api/recipes?ingredients=${ingredients.join(",")}`)
+        const data = await response.json()
+        if (Array.isArray(data)) {
+          setRecipes(data)
         }
-      } catch {
-        setIngredients([])
+      } catch (err) {
+        console.error("Failed to fetch recipes:", err)
       }
     }
 
-    if (savedRec) {
-      try {
-        const parsed = JSON.parse(savedRec)
-        if (Array.isArray(parsed)) {
-          setRecipes(parsed)
-        } else {
-          setRecipes([])
-        }
-      } catch {
-        setRecipes([])
-      }
-    }
-  }, [])
+    fetchRecipes()
+  }, [ingredients, hasLoaded])
 
-  // useEffect(() => {
-  //   if (typeof window !== "undefined") {
-  //     localStorage.setItem("recipes", JSON.stringify(recipes))
-  //   }
-  // },[recipes])
-
-  // useEffect(() => {
-  //   if (typeof window !== "undefined") {
-  //     localStorage.setItem("ingredients", JSON.stringify(ingredients))
-  //   }
-  // }, [ingredients])
-
-// Fetch recipes only
-  useEffect(() => {
-    if (ingredients.length >= 3) {
-      const fetchRecipes = async () => {
-        try {
-          const response = await fetch(`/api/recipes?ingredients=${ingredients.join(",")}`)
-          const data = await response.json()
-          if (Array.isArray(data)) {
-            setRecipes(data)
-          }
-        } catch (err) {
-          console.error("Failed to fetch recipes:", err)
-        }
-      }
-      fetchRecipes()
-    }
-  }, [ingredients])
-
-  useEffect(() => {
-    const savedPlan = localStorage.getItem("mealPlan")
-    if (savedPlan) setMealPlan(JSON.parse(savedPlan))
-  }, [])
-
-  // adding ingredients functions
-
+  // Ingredient management
   const addIngredient = () => {
+    if (!debouncedValue.trim()) return
+
     const streakData = localStorage.getItem("streak")
       ? JSON.parse(localStorage.getItem("streak")!)
       : null
@@ -159,13 +108,8 @@ export default function Home() {
       updateStreak()
     }
 
-    if (!debouncedValue) return
-    setIngredients((prev) => [...prev, input])
+    setIngredients((prev) => [...prev, debouncedValue.trim()])
     setInput("")
-
-    // if (ingredients.length === 4) {
-    //   unlockAchievement("Pantry Stocker")
-    // }
   }
 
   const removeIngredient = (index: number) => {
@@ -176,16 +120,19 @@ export default function Home() {
     setInput(event.target.value)
   }
 
-  // Meal plan functions
-
+  // Meal plan management
   const handleOpen = (dish: Recipe) => {
-    setOpenModal('mealPlanAdd')
+    setOpenModal("mealPlanAdd")
     setSelectedDish(dish)
   }
 
   const handleClose = () => setOpenModal(null)
 
-  const handleSaveMealPlan = ( day: string, mealType: "breakfast" | "lunch" | "dinner", dish: Recipe) => {
+  const handleSaveMealPlan = (
+    day: string,
+    mealType: "breakfast" | "lunch" | "dinner",
+    dish: Recipe
+  ) => {
     const updatedPlans = {
       ...mealPlan,
       [day]: {
@@ -198,47 +145,35 @@ export default function Home() {
       },
     }
 
-    setOpenModal(null)
-
-    // const dayMeals = updatedPlans[day]
-    // if (dayMeals.breakfast && dayMeals.lunch && dayMeals.dinner) {
-    //   unlockAchievement("Daily Planner")
-    // }
-
-    // const allDaysFilled = Object.values(updatedPlans).every(
-    //   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    //   (d: any) => d.breakfast && d.lunch && d.dinner
-    // )
-
-    // if (allDaysFilled) {
-    //   unlockAchievement("Master Planner")
-    // }
-
     setMealPlan(updatedPlans)
-    localStorage.setItem("mealPlan", JSON.stringify(updatedPlans))
+    setOpenModal(null)
   }
 
-  const handleDeleteMealFromPlan = ( day: string, mealType: "breakfast" | "lunch" | "dinner") => {
+  const handleDeleteMealFromPlan = (
+    day: string,
+    mealType: "breakfast" | "lunch" | "dinner"
+  ) => {
     const updatedPlan = {
-      ... mealPlan, [day] : {...mealPlan[day], [mealType]: undefined,},
+      ...mealPlan,
+      [day]: {
+        ...mealPlan[day],
+        [mealType]: undefined,
+      },
     }
 
     setMealPlan(updatedPlan)
-    localStorage.setItem("mealPlan", JSON.stringify(updatedPlan))
   }
 
-  // Streak functions
-
+  // Streak logic
   function getTodayKey() {
     return new Date().toISOString().split("T")[0]
   }
 
   function startStreak() {
     const today = getTodayKey()
-
     const streakData = {
-      currentStreak: 1,        
-      lastActiveDate: today,   
+      currentStreak: 1,
+      lastActiveDate: today,
     }
     localStorage.setItem("streak", JSON.stringify(streakData))
     setStreak(streakData.currentStreak)
@@ -246,16 +181,14 @@ export default function Home() {
   }
 
   function updateStreak() {
-    const today =  getTodayKey()
+    const today = getTodayKey()
+    const streakData =
+      JSON.parse(localStorage.getItem("streak") || "null") || {
+        currentStreak: 0,
+        lastActiveDate: null,
+      }
 
-    const streakData = JSON.parse(localStorage.getItem("streak") || "null") || {
-      currentStreak: 0,
-      lastActiveDate: null,
-    }
-
-    if (streakData.lastActiveDate === today) {
-      return streakData
-    }
+    if (streakData.lastActiveDate === today) return streakData
 
     const yesterday = new Date()
     yesterday.setDate(yesterday.getDate() - 1)
@@ -270,11 +203,6 @@ export default function Home() {
     streakData.lastActiveDate = today
     localStorage.setItem("streak", JSON.stringify(streakData))
     setStreak(streakData.currentStreak)
-
-    // if (streakData.currentStreak === 7) {
-    //   unlockAchievement("Consistency")
-    // } 
-
     return streakData
   }
 
@@ -293,34 +221,6 @@ export default function Home() {
         <div className='font-merriweather text-2xl mb-6'>
           <h3>Your streak: 🔥{streak}</h3>
         </div>
-        {/* <Drawer>
-          <DrawerTrigger asChild>
-            <Button className="font-light text-xl bg-[#004E89] text-[#EFEFD0] cursor-pointer hover:bg-[#1A659E] mx-0.5 my-0.5 mb-6">Open Drawer</Button>
-          </DrawerTrigger>
-          <DrawerContent>
-            <div className="mx-auto w-full max-w-sm">
-              <DrawerHeader>
-                <DrawerTitle className='font-merriweather text-2xl'>Your streak: 🔥{streak} !</DrawerTitle>
-                <DrawerDescription className='font-merriweather text-xl'>Your achievements!</DrawerDescription>
-              </DrawerHeader>
-              <div className='flex flex-col items-center justify-center'>
-                <div>
-                  <AchievementList />
-                </div>
-              </div>
-              <DrawerFooter>
-                <DrawerClose asChild>
-                  <Button variant="outline" className='font-light text-xl bg-[#004E89] text-[#EFEFD0] cursor-pointer hover:bg-[#1A659E] mx-0.5 my-0.5'>Cancel</Button>
-                </DrawerClose>
-              </DrawerFooter>
-            </div>
-          </DrawerContent>
-        </Drawer>
-
-        <Button onClick={resetAchievements} className="ml-2">
-          Reset Achievements
-        </Button> */}
-        
         <div className='border border-[#828181] rounded-md bg-white flex flex-row items-center w-fit mb-6'>
           <input 
             value={input}
