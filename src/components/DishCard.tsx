@@ -1,8 +1,6 @@
 import { FC } from 'react';
 import { Heart } from 'lucide-react';
 import { Button } from './ui/button';
-// import { useAchievement } from '@/components/hooks/useAchievement';
-// import { useRouter } from 'next/navigation';
 import Image from "next/image";
 import Link from 'next/link';
 
@@ -16,20 +14,6 @@ interface dishCardProps {
 };
 
 const DishCard: FC<dishCardProps> = ({ image, title, likes, missingIng, id, onClick }) => {
-
-  // const { unlockAchievement } = useAchievement()
-  // const router = useRouter()
-
-  // const handleSeeMore = () => {
-  //   const stored = localStorage.getItem("recipeVisits")
-  //   const visits = stored ? parseInt(stored) : 0
-  //   const updatedVisits = visits + 1
-  //   localStorage.setItem("recipeVisits", updatedVisits.toString())
-
-  //   if (updatedVisits === 1) unlockAchievement("First Recipe")
-
-  //   router.push(`/recipes/${id}`)
-  // }
 
   return <div className='flex flex-row items-center gap-10 mb-5'>
     <Image src={image} alt={title} width={500} height={700} className='rounded-md'/> 

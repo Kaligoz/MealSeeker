@@ -26,9 +26,7 @@ const MealPlanCard: FC<MealPlanCardProps> = ({ day, recipeBreakfast, recipeLunch
         <CarouselNext className="static translate-y-0 w-6 h-6" />
       </div>
 
-      {/* Meals */}
       <div className="grid grid-cols-1 md:grid-cols-3 items-start gap-y-8 md:gap-y-4 md:gap-x-6">
-        {/* Breakfast */}
         <div className="flex flex-col items-center md:items-start gap-2">
           <h3 className="font-merriweather text-xl md:text-2xl">Breakfast:</h3>
           <Image
@@ -59,7 +57,6 @@ const MealPlanCard: FC<MealPlanCardProps> = ({ day, recipeBreakfast, recipeLunch
           )}
         </div>
 
-        {/* Lunch */}
         <div className="flex flex-col items-center md:items-start gap-2">
           <h3 className="font-merriweather text-xl md:text-2xl">Lunch:</h3>
           <Image
@@ -90,7 +87,6 @@ const MealPlanCard: FC<MealPlanCardProps> = ({ day, recipeBreakfast, recipeLunch
           )}
         </div>
 
-        {/* Dinner */}
         <div className="flex flex-col items-center md:items-start gap-2">
           <h3 className="font-merriweather text-xl md:text-2xl">Dinner:</h3>
           <Image
