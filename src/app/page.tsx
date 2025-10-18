@@ -227,6 +227,11 @@ export default function Home() {
             type="text"
             placeholder= "Enter an ingredient..."
             onChange={handleinputChange} 
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                addIngredient()
+              }
+            }}
             className='text-[#828181] text-2xl mr-20 px-2 py-0.5 outline-none'
           />
           <Button 
