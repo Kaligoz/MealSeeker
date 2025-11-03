@@ -3,6 +3,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { Clock, Utensils  } from "lucide-react";
 import phrases from "@/lib/phrases.json";
+import striptags from 'striptags';
 
 interface RecipePageProps {
   params: Promise<{ slug: string }>;
@@ -36,13 +37,18 @@ export default async function RecipePage({ params }: RecipePageProps) {
         ) 
     }
 
-    const data = await res.json()
+    const data = await res.json()   
+
+    function cleanText(text?: string) {
+        if (!text) return ''
+        return striptags(text)
+    }
 
     return (
          <main className="md:grid md:grid-cols-2 md:gap-8 gap-0 flex flex-col">
             <section className="p-4 flex flex-col items-center">
                 <Button className="font-light text-xl bg-[#004E89] text-[#EFEFD0] cursor-pointer hover:bg-[#1A659E] w-full mb-6"><Link href="/">Back</Link></Button>
-                <div className="relative mb-6 md:w-[700px] md:h-[500px] w-[350px] h-[250px]">
+                <div className="relative ml-2 mb-6 xl:w-[700px] xl:h-[500px] lg:w-[550px] lg:h-[400px] md:w-[375px] md:h-[300px] w-[350px] h-[250px]">
                     <Image 
                         src={data.image}
                         alt={data.title}
@@ -82,7 +88,7 @@ export default async function RecipePage({ params }: RecipePageProps) {
                 <div className="flex flex-col justify-center items-center">
                     <Image src="/Ornament.png" alt="Nutella Stuffed French Toast" width={300} height={200} className="mb-4"/>
                     <h2 className="md:text-4xl text-2xl font-parisienne text-[#004E89] mb-6">Instructions</h2>
-                    <p className="md:text-base text-sm font-merriweather">{data.instructions}</p>
+                    <p className="md:text-base text-sm font-merriweather">{cleanText(data?.instructions)}</p>
                 </div>
             </section>   
         </main>

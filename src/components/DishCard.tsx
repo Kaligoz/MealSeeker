@@ -15,7 +15,7 @@ interface dishCardProps {
 
 const DishCard: FC<dishCardProps> = ({ image, title, likes, missingIng, id, onClick }) => {
 
-  return <div className='flex flex-row items-center gap-10 mb-5'>
+  return <div className='flex lg:flex-row flex-col items-center lg:gap-10 gap-5 mb-5'>
     <Image src={image} alt={title} width={500} height={700} className='rounded-md'/> 
     <div className='flex flex-col justify-start items-start'>
       <h2 className='font-merriweather md:text-2xl text-xl mb-1.5'>{title}</h2>
