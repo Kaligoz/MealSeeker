@@ -9,11 +9,12 @@ interface dishCardProps {
   title: string,
   likes: number,
   missingIng: string[],
+  matchPercent: number,
   id: number,
   onClick: () => void, 
 };
 
-const DishCard: FC<dishCardProps> = ({ image, title, likes, missingIng, id, onClick }) => {
+const DishCard: FC<dishCardProps> = ({ image, title, likes, missingIng, matchPercent, id, onClick }) => {
 
   return <div className='flex lg:flex-row flex-col items-center lg:gap-10 gap-5 mb-5'>
     <Image src={image} alt={title} width={500} height={700} className='rounded-md'/> 
@@ -24,6 +25,7 @@ const DishCard: FC<dishCardProps> = ({ image, title, likes, missingIng, id, onCl
         <div className='rounded-full bg-[#FF6B35] w-[170px] h-[3px]'></div>
       </div>
       <p className='font-merriweather max-w-[480px] mb-3'>Missing ingredients: {missingIng.join(', ')}</p>
+      <p className='font-merriweather max-w-[480px] mb-3'>Matching ingredients: {matchPercent}%</p>
       <p className='font-merriweather flex flex-row justify-start items-center gap-2 mb-5'><Heart className='w-6 h-6'/> {likes}</p>
       <div className='flex flex-row items-center gap-5'>
         <Button className='font-light md:text-xl text-base bg-[#004E89] text-[#EFEFD0] cursor-pointer hover:bg-[#1A659E]'><Link href={`/recipes/${id}`}>See more</Link></Button>

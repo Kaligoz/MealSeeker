@@ -28,7 +28,7 @@ export default function Home() {
   const [recipes, setRecipes] = useState<Recipe[]>([])
   const [hasLoaded, setHasLoaded] = useState(false)
 
-  const [streak, setStreak] = useState<number>()
+  const [streak, setStreak] = useState<number>(0)
   const [openModal, setOpenModal] = useState<string | null>(null)
   const [selectedDish, setSelectedDish] = useState<Recipe | null>(null)
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -80,8 +80,15 @@ export default function Home() {
     if (!hasLoaded || ingredients.length < 3) return
 
     const fetchRecipes = async () => {
+
+      let apiUrl = `/api/recipes?ingredients=${ingredients.join(",")}`
+
+      if (streak <= 2) apiUrl += "&maxReadyTime=20$sort=popularity"
+      else if (streak <= 6) apiUrl += "&maxReadyTime=40&sort=healthiness"
+      else apiUrl += "&sort=random&cuisine=asian,italian,mexican"
+
       try {
-        const response = await fetch(`/api/recipes?ingredients=${ingredients.join(",")}`)
+        const response = await fetch(apiUrl)
         const data = await response.json()
         if (Array.isArray(data)) {
           setRecipes(data)
@@ -272,18 +279,26 @@ export default function Home() {
       <section className='xl:col-span-2 ml-0 xl:ml-16 h-auto min-h-screen mt-40 xl:mt-0 p-2 xl:p-0'>
         <h1 className='font-merriweather text-3xl mb-4 pt-4'>Found <span className='text-[#004E89]'>{recipes.length} meals</span> from your fridge:</h1>
         <div className='h-[calc(100vh-5rem)] overflow-y-auto p-4 no-scrollbar'>
-          {recipes.map((r) => (
-            <div key={r.id}>
-              <DishCard  
-                title={r.title}
-                image={r.image} 
-                likes={r.likes}
-                missingIng={r.missedIngredients?.map((ing) => ing.name) || []}
-                id={r.id}
-                onClick={() => handleOpen(r)}
-              />
-            </div>
-          ))}
+          {recipes.map((r) => {
+
+            const have = ingredients.length
+            const total = have + r.missedIngredients.length
+            const match = total > 0 ? Math.round((have / total) * 100) : 0
+
+            return (
+              <div key={r.id}>
+                <DishCard  
+                  title={r.title}
+                  image={r.image} 
+                  likes={r.likes}
+                  missingIng={r.missedIngredients?.map((ing) => ing.name) || []}
+                  matchPercent={match}
+                  id={r.id}
+                  onClick={() => handleOpen(r)}
+                />
+              </div>
+            )
+          })}
         </div>
       </section>
       <MealPlanAddModal isOpen={openModal === 'mealPlanAdd'} onClose={handleClose} dish={selectedDish} onSave={handleSaveMealPlan} currentMeals={mealPlan}/>
