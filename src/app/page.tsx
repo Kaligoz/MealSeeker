@@ -11,6 +11,7 @@ import {
 import MealPlanCard from '@/components/MealPlanCard';
 import MealPlanAddModal from '@/components/MealPlanAddModal';
 import DishCard from '../components/DishCard';
+import { motion } from "motion/react";
 
 type Recipe = {
   id: number,
@@ -279,14 +280,23 @@ export default function Home() {
       <section className='xl:col-span-2 ml-0 xl:ml-16 h-auto min-h-screen mt-40 xl:mt-0 p-2 xl:p-0'>
         <h1 className='font-merriweather text-3xl mb-4 pt-4'>Found <span className='text-[#004E89]'>{recipes.length} meals</span> from your fridge:</h1>
         <div className='h-[calc(100vh-5rem)] overflow-y-auto p-4 no-scrollbar'>
-          {recipes.map((r) => {
+          {recipes.map((r, i) => {
 
             const have = ingredients.length
             const total = have + r.missedIngredients.length
             const match = total > 0 ? Math.round((have / total) * 100) : 0
 
             return (
-              <div key={r.id}>
+              <motion.div 
+                key={r.id}
+                initial={{ opacity: 0, scale: 0 }}      
+                animate={{ opacity: 1, scale: 1 }}       
+                exit={{ opacity: 0, scale: 0 }}      
+                transition={{
+                  duration: 0.4,
+                  delay: i * 0.2, 
+                }}
+              >
                 <DishCard  
                   title={r.title}
                   image={r.image} 
@@ -296,7 +306,7 @@ export default function Home() {
                   id={r.id}
                   onClick={() => handleOpen(r)}
                 />
-              </div>
+              </motion.div>
             )
           })}
         </div>
