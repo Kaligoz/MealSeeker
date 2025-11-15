@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Button } from "./ui/button";
 import Image from "next/image";
+import { motion, AnimatePresence } from "motion/react";
 
 type MealPlanAddModalProps = {
     isOpen: boolean;
@@ -60,82 +61,96 @@ export default function MealPlanAddModal({ isOpen, onClose, dish, onSave, curren
     }, [isOpen, onClose])
 
     return(
-        <div
-            className={`fixed inset-0 z-50 flex items-center justify-center bg-black/50 transition-opacity duration-300 ${
-            isOpen ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
-            } p-4 md:p-8`}>
-            <div ref={modalRef} className="bg-[#EFEFD0] rounded-xl p-6 relative min-w-[300px]">
-
-            <Button onClick={onClose} className="absolute top-2 right-2 cursor-pointer bg-[#EFEFD0] hover:text-black hover:bg-[#EFEFD0] text-black font-bold border-none">
-                ✕
-            </Button>
-
-            <div className="flex flex-row mt-6 gap-2 mb-6 flex-wrap">
-            {days.map((day) => (
-                <Button
-                key={day}
-                onClick={() => setSelectedDay(day)}
-                className={`flex items-center justify-center border border-black rounded-full md:text-xl text-lg font-light font-merriweather bg-[#EFEFD0] text-black hover:bg-[#b3b39c] cursor-pointer ${
-                    selectedDay === day 
-                    ? 'bg-[#b3b39c]' 
-                    : ''
-                }`}
+        <AnimatePresence>
+            {isOpen && (
+                <motion.div 
+                    className="fixed inset-0 bg-black/50"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
                 >
-                {day}
-                </Button>
-            ))}
-            </div>
+                    <motion.div
+                        className="z-50 flex items-center justify-center h-full p-4 md:p-8"
+                        initial={{ opacity: 0, scale: 0.9 }}      
+                        animate={{ opacity: 1, scale: 1 }}       
+                        exit={{ opacity: 0, scale: 0.9 }}      
+                        transition={{ duration: 0.4 }}
+                    >
+                        <div ref={modalRef} className="bg-[#EFEFD0] rounded-xl p-6 relative min-w-[300px]">
 
-            {["breakfast", "lunch", "dinner"].map((mealType) => {
-                const meal = selectedDay
-                    ? currentMeals?.[selectedDay]?.[mealType as "breakfast" | "lunch" | "dinner"]
-                    : undefined;
-
-                return (
-                    <div key={mealType} className="flex flex-col mb-4">
-                    <h4 className="md:text-4xl text-2xl text-black font-parisienne capitalize">
-                        {mealType}:
-                    </h4>
-
-                    {meal ? (
-                        <div className="flex items-center gap-3 mt-2">
-                        <Image
-                            src={meal.image}
-                            alt={meal.title}
-                            width={200}
-                            height={100}
-                            className="rounded-md"
-                        />
-                        <p className="md:text-2xl text-lg font-merriweather">{meal.title}</p>
-                        <Button
-                            disabled={!selectedDay || !dish}
-                            onClick={() => {
-                                if (dish && selectedDay) {
-                                    onSave(selectedDay, mealType as "breakfast" | "lunch" | "dinner", dish)
-                                }
-                            }}
-                            className="ml-auto bg-[#004E89] text-[#EFEFD0] hover:bg-[#1A659E] md:text-xl text-base cursor-pointer"
-                        >
-                            Change
+                        <Button onClick={onClose} className="absolute top-2 right-2 cursor-pointer bg-[#EFEFD0] hover:text-black hover:bg-[#EFEFD0] text-black font-bold border-none">
+                            ✕
                         </Button>
+
+                        <div className="flex flex-row mt-6 gap-2 mb-6 flex-wrap">
+                        {days.map((day) => (
+                            <Button
+                            key={day}
+                            onClick={() => setSelectedDay(day)}
+                            className={`flex items-center justify-center border border-black rounded-full md:text-xl text-lg font-light font-merriweather bg-[#EFEFD0] text-black hover:bg-[#b3b39c] cursor-pointer ${
+                                selectedDay === day 
+                                ? 'bg-[#b3b39c]' 
+                                : ''
+                            }`}
+                            >
+                            {day}
+                            </Button>
+                        ))}
                         </div>
-                    ) : (
-                        <Button
-                        disabled={!selectedDay || !dish}
-                        onClick={() =>
-                            dish &&
-                            selectedDay &&
-                            onSave(selectedDay, mealType as "breakfast" | "lunch" | "dinner", dish)
-                        }
-                        className="mt-2 bg-[#004E89] text-[#EFEFD0] hover:bg-[#1A659E] md:text-xl text-base cursor-pointer"
-                        >
-                        Add
-                        </Button>
-                    )}
-                    </div>
-                );
-            })}
-            </div>
-        </div>
+
+                        {["breakfast", "lunch", "dinner"].map((mealType) => {
+                            const meal = selectedDay
+                                ? currentMeals?.[selectedDay]?.[mealType as "breakfast" | "lunch" | "dinner"]
+                                : undefined;
+
+                            return (
+                                <div key={mealType} className="flex flex-col mb-4">
+                                <h4 className="md:text-4xl text-2xl text-black font-parisienne capitalize">
+                                    {mealType}:
+                                </h4>
+
+                                {meal ? (
+                                    <div className="flex items-center gap-3 mt-2">
+                                    <Image
+                                        src={meal.image}
+                                        alt={meal.title}
+                                        width={200}
+                                        height={100}
+                                        className="rounded-md"
+                                    />
+                                    <p className="md:text-2xl text-lg font-merriweather">{meal.title}</p>
+                                    <Button
+                                        disabled={!selectedDay || !dish}
+                                        onClick={() => {
+                                            if (dish && selectedDay) {
+                                                onSave(selectedDay, mealType as "breakfast" | "lunch" | "dinner", dish)
+                                            }
+                                        }}
+                                        className="ml-auto bg-[#004E89] text-[#EFEFD0] hover:bg-[#1A659E] md:text-xl text-base cursor-pointer"
+                                    >
+                                        Change
+                                    </Button>
+                                    </div>
+                                ) : (
+                                    <Button
+                                    disabled={!selectedDay || !dish}
+                                    onClick={() =>
+                                        dish &&
+                                        selectedDay &&
+                                        onSave(selectedDay, mealType as "breakfast" | "lunch" | "dinner", dish)
+                                    }
+                                    className="mt-2 bg-[#004E89] text-[#EFEFD0] hover:bg-[#1A659E] md:text-xl text-base cursor-pointer"
+                                    >
+                                    Add
+                                    </Button>
+                                )}
+                                </div>
+                            );
+                        })}
+                        </div>
+                    </motion.div>
+                </motion.div>
+            )}
+        </AnimatePresence>
     )
 };

@@ -3,7 +3,8 @@ import Image from "next/image";
 import Link from "next/link";
 import { Clock, Utensils  } from "lucide-react";
 import phrases from "@/lib/phrases.json";
-import striptags from 'striptags';
+import striptags from "striptags";
+import AnimatedCard from "@/components/AnimatedCard";
 
 interface RecipePageProps {
   params: Promise<{ slug: string }>;
@@ -66,10 +67,7 @@ export default async function RecipePage({ params }: RecipePageProps) {
                 </div>
                 <div className="relative w-[500px">
                     <Image src="/PaperClip.png" alt="A paper clip to hold down the chefs note." width={30} height={50} className="absolute -top-3 left-4"/>
-                    <div className="bg-white rounded-md p-10">
-                        <h2 className="text-2xl font-parisienne text-[#004E89] mr-10">Chefs note:</h2>
-                        <p className="text-2xl font-parisienne">{phrase}</p>
-                    </div>
+                    <AnimatedCard phrase={phrase} />
                 </div>
             </section>
             <section className="flex flex-col items-center gap-4 md:bg-[url('/Background.png')] md:bg-no-repeat md:bg-center md:bg-cover p-4 h-screen">

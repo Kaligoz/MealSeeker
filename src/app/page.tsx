@@ -11,7 +11,7 @@ import {
 import MealPlanCard from '@/components/MealPlanCard';
 import MealPlanAddModal from '@/components/MealPlanAddModal';
 import DishCard from '../components/DishCard';
-import { motion } from "motion/react";
+import { motion, AnimatePresence } from "motion/react";
 
 type Recipe = {
   id: number,
@@ -249,14 +249,23 @@ export default function Home() {
           </Button>
         </div>
         <div className='mb-6 gap-2 flex flex-wrap max-w-full'>
-          {ingredients.map((ing, i) => 
-            <div key={i} className='border border-[#9E9E9E] bg-white rounded-md px-2 w-fit flex flex-row itmes-center'>
-              <h3 className=' text-lg font-light pr-3'>{ing}</h3>
-              <button onClick={() => removeIngredient(i)} className='cursor-pointer text-[#9E9E9E]'>✕</button>
-            </div>
-          )}
+          <AnimatePresence>
+            {ingredients.map((ing, i) => 
+              <motion.div 
+                key={ing} 
+                className='border border-[#9E9E9E] bg-white rounded-md px-2 w-fit flex flex-row itmes-center'
+                initial={{ opacity: 0, y: -20 }}      
+                animate={{ opacity: 1, y: 0 }}       
+                exit={{ opacity: 0, y: -20 }}      
+                transition={{ duration: 0.4 }}
+              >
+                <h3 className=' text-lg font-light pr-3'>{ing}</h3>
+                <button onClick={() => removeIngredient(i)} className='cursor-pointer text-[#9E9E9E]'>✕</button>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
-        <div>
+        <motion.div>
           <Carousel>
             <CarouselContent>
               {["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"].map((day) => (
@@ -275,7 +284,7 @@ export default function Home() {
               ))}
             </CarouselContent>
           </Carousel>
-        </div>
+        </motion.div>
       </section>
       <section className='xl:col-span-2 ml-0 xl:ml-16 h-auto min-h-screen mt-40 xl:mt-0 p-2 xl:p-0'>
         <h1 className='font-merriweather text-3xl mb-4 pt-4'>Found <span className='text-[#004E89]'>{recipes.length} meals</span> from your fridge:</h1>
