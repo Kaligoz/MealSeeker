@@ -126,6 +126,7 @@
   --color-foreground: var(--foreground);
   --font-merriweather: var(--font-merriweather);
   --font-parisienne: var(--font-parisienne);
+  --font-shadows-into-light-two: var(--font-shadows-into-light-two);
 }
 
 @media (prefers-color-scheme: dark) {

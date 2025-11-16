@@ -8,10 +8,13 @@ import {
   CarouselContent,
   CarouselItem
 } from "@/components/ui/carousel";
+import { toast } from "sonner"
+import { motion, AnimatePresence } from "motion/react";
 import MealPlanCard from '@/components/MealPlanCard';
 import MealPlanAddModal from '@/components/MealPlanAddModal';
 import DishCard from '../components/DishCard';
-import { motion, AnimatePresence } from "motion/react";
+import Image from 'next/image';
+import { ingredientList } from '@/lib/ingredients';
 
 type Recipe = {
   id: number,
@@ -24,6 +27,7 @@ type Recipe = {
 export default function Home() {
   const [input, setInput] = useState("")
   const [debouncedValue] = useDebounce(input, 1000)
+  const [suggestions, setSuggestions] = useState<string[]>([])
 
   const [ingredients, setIngredients] = useState<string[]>([])
   const [recipes, setRecipes] = useState<Recipe[]>([])
@@ -104,7 +108,20 @@ export default function Home() {
 
   // Ingredient management
   const addIngredient = () => {
-    if (!debouncedValue.trim()) return
+    const value = debouncedValue.trim()
+
+    if (!value) return
+
+    if (value.includes(",") || value.split(" ").length > 2) {
+      toast.error("Please add one ingredient at a time.")
+      return
+    } else if (ingredients.includes(value.toLowerCase())) {
+      toast.error("This ingredient is already in the list.")
+      return
+    } else if (!/^[a-zA-Z\s-]+$/.test(value)) {
+      toast.error("Only letters are allowed")
+      return
+    }
 
     const streakData = localStorage.getItem("streak")
       ? JSON.parse(localStorage.getItem("streak")!)
@@ -125,7 +142,21 @@ export default function Home() {
   }
 
   const handleinputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setInput(event.target.value)
+    const value = event.target.value
+    setInput(value)
+
+    if (value.trim().length === 0) {
+      setSuggestions([])
+      return
+    }
+
+    const filtered = ingredientList
+      .filter((item) =>
+        item.toLowerCase().startsWith(value.toLowerCase())
+      )
+      .slice(0, 6)
+
+    setSuggestions(filtered)
   }
 
   // Meal plan management
@@ -216,7 +247,8 @@ export default function Home() {
 
   return (
     <main className='xl:grid xl:grid-cols-3 flex flex-col min-h-screen'>
-      <section className="xl:sticky xl:top-0 xl:h-screen xl:bg-[url('/Background.png')] xl:bg-no-repeat xl:bg-center xl:bg-cover p-6 sm:p-8 md:p-10">
+      <section className="relative xl:sticky xl:top-0 xl:h-screen xl:bg-[url('/Background.png')] xl:bg-no-repeat xl:bg-center xl:bg-cover p-6 sm:p-8 md:p-10">
+        <div className="absolute right-0 top-0 h-full xl:w-20 xl:pointer-events-none xl:bg-gradient-to-r xl:from-transparent xl:via-[#EFEFD0]/80 xl:to-[#EFEFD0]"></div>
         <div className='mb-6'>
           <h1 className="font-merriweather text-4xl font-bold mb-8">Welcome to <span className="font-parisienne text-[#1A659E]">MealSeeker!</span></h1>
           <p className="font-merriweather text-xl">
@@ -229,21 +261,41 @@ export default function Home() {
         <div className='font-merriweather text-2xl mb-6'>
           <h3>Your streak: 🔥{streak}</h3>
         </div>
-        <div className='border border-[#828181] rounded-md bg-white flex flex-row items-center w-fit mb-6'>
-          <input 
-            value={input}
-            type="text"
-            placeholder= "Enter an ingredient..."
-            onChange={handleinputChange} 
-            onKeyDown={(e) => {
-              if (e.key === "Enter") {
-                addIngredient()
-              }
-            }}
-            className='text-[#828181] text-2xl px-2 py-0.5 outline-none'
-          />
+        <div className='relative border border-[#828181] rounded-md bg-white flex flex-row items-center w-fit mb-6'>
+          <div className="relative">
+            <input 
+              value={input}
+              type="text"
+              placeholder= "Enter an ingredient..."
+              onChange={handleinputChange} 
+              onKeyDown={(e) => {
+                if (e.key === "Enter") addIngredient()
+              }}
+              className='text-[#828181] md:text-2xl text-xl px-2 py-0.5 outline-none'
+            />
+            {suggestions.length > 0 && (
+              <ul className="absolute left-0 top-full w-full bg-white border border-gray-300 rounded-md shadow-lg z-30 max-h-48 overflow-y-auto">
+                {suggestions.map((item) => (
+                  <li
+                    key={item}
+                    onClick={() => {
+                      setInput(item)
+                      setSuggestions([])
+                    }}
+                    className="p-2 cursor-pointer hover:bg-gray-100"
+                  >
+                    {item}
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+          
           <Button 
-            onClick={addIngredient} 
+            onClick={() => {
+              addIngredient()
+              setSuggestions([])
+            }} 
             className='font-light text-xl bg-[#004E89] text-[#EFEFD0] cursor-pointer hover:bg-[#1A659E] mx-0.5 my-0.5'>
             Add
           </Button>
@@ -265,7 +317,11 @@ export default function Home() {
             )}
           </AnimatePresence>
         </div>
-        <motion.div>
+        <motion.div
+          initial={{ opacity: 0, y: 40 }}      
+          animate={{ opacity: 1, y: 0 }}     
+          transition={{ duration: 0.5 }}       
+        >
           <Carousel>
             <CarouselContent>
               {["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"].map((day) => (
@@ -285,40 +341,67 @@ export default function Home() {
             </CarouselContent>
           </Carousel>
         </motion.div>
-      </section>
-      <section className='xl:col-span-2 ml-0 xl:ml-16 h-auto min-h-screen mt-40 xl:mt-0 p-2 xl:p-0'>
-        <h1 className='font-merriweather text-3xl mb-4 pt-4'>Found <span className='text-[#004E89]'>{recipes.length} meals</span> from your fridge:</h1>
-        <div className='h-[calc(100vh-5rem)] overflow-y-auto p-4 no-scrollbar'>
-          {recipes.map((r, i) => {
+      </section> 
+      
+      <section className='xl:col-span-2 ml-0 xl:pl-16 h-auto min-h-screen mt-40 xl:mt-0 p-2 xl:p-0 flex flex-col'>
+        <h1 className='font-merriweather text-3xl mb-4 pt-6 sm:pt-8 md:pt-10'>Found <span className='text-[#004E89]'>{recipes.length} meals</span> from your fridge:</h1>
+        { recipes.length > 0 ? (
+          <div className='flex-1 overflow-y-auto p-4 no-scrollbar'>
+            {recipes.map((r, i) => {
 
-            const have = ingredients.length
-            const total = have + r.missedIngredients.length
-            const match = total > 0 ? Math.round((have / total) * 100) : 0
+              const have = ingredients.length
+              const total = have + r.missedIngredients.length
+              const match = total > 0 ? Math.round((have / total) * 100) : 0
 
-            return (
-              <motion.div 
-                key={r.id}
-                initial={{ opacity: 0, scale: 0 }}      
-                animate={{ opacity: 1, scale: 1 }}       
-                exit={{ opacity: 0, scale: 0 }}      
-                transition={{
-                  duration: 0.4,
-                  delay: i * 0.2, 
-                }}
-              >
-                <DishCard  
-                  title={r.title}
-                  image={r.image} 
-                  likes={r.likes}
-                  missingIng={r.missedIngredients?.map((ing) => ing.name) || []}
-                  matchPercent={match}
-                  id={r.id}
-                  onClick={() => handleOpen(r)}
-                />
-              </motion.div>
-            )
-          })}
-        </div>
+              return (
+                <motion.div 
+                  key={r.id}
+                  initial={{ opacity: 0, scale: 0 }}      
+                  animate={{ opacity: 1, scale: 1 }}       
+                  exit={{ opacity: 0, scale: 0 }}      
+                  transition={{
+                    duration: 0.4,
+                    delay: i * 0.2, 
+                  }}
+                >
+                  <DishCard  
+                    title={r.title}
+                    image={r.image} 
+                    likes={r.likes}
+                    missingIng={r.missedIngredients?.map((ing) => ing.name) || []}
+                    matchPercent={match}
+                    id={r.id}
+                    onClick={() => handleOpen(r)}
+                  />
+                </motion.div>
+              )
+            })}
+          </div>
+         ) : (
+          <div className="flex flex-1 flex-col items-center justify-center text-center">
+            <motion.div
+              animate={{ x: [0, 10, -10, 0]}}
+              transition={{
+                duration: 5,
+                repeat: Infinity,
+                ease: 'easeInOut',
+              }}
+            >
+              <Image 
+                src="/mangGlass.png"
+                alt="A mangifing Glass"
+                width={144}
+                height={144}
+              />
+            </motion.div>
+            <h3 className="text-2xl font-merriweather">
+              To begin please enter at 
+              <span className='text-[#004E89]'> least 3 </span>
+              ingrediens
+            </h3>
+          </div>
+        )}
+        
       </section>
       <MealPlanAddModal isOpen={openModal === 'mealPlanAdd'} onClose={handleClose} dish={selectedDish} onSave={handleSaveMealPlan} currentMeals={mealPlan}/>
     </main>

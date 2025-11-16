@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
-import { Merriweather, Parisienne } from "next/font/google";
-import { ToastContainer } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
+import { Merriweather, Parisienne, Shadows_Into_Light_Two } from "next/font/google";
+import { Toaster } from "@/components/ui/sonner"
 import "./globals.css";
 
 const merriweather = Merriweather({
@@ -11,6 +10,12 @@ const merriweather = Merriweather({
 
 const parisienne = Parisienne({
   variable: "--font-parisienne",
+  subsets: ["latin"],
+  weight: "400",
+});
+
+const shadowsIntoLightTwo = Shadows_Into_Light_Two({
+  variable: "--font-shadows-into-light-two",
   subsets: ["latin"],
   weight: "400",
 });
@@ -28,10 +33,10 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${merriweather.variable} ${parisienne.variable} antialiased`}
+        className={`${merriweather.variable} ${parisienne.variable} ${shadowsIntoLightTwo.variable} antialiased`}
       >
         {children}
-        <ToastContainer position="bottom-right" autoClose={3000} />
+        <Toaster position="top-center" richColors/>
       </body>
     </html>
   );

@@ -1,7 +1,8 @@
+import { Clock, Utensils  } from "lucide-react";
+import { toast } from "sonner"
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
 import Link from "next/link";
-import { Clock, Utensils  } from "lucide-react";
 import phrases from "@/lib/phrases.json";
 import striptags from "striptags";
 import AnimatedCard from "@/components/AnimatedCard";
@@ -30,12 +31,9 @@ export default async function RecipePage({ params }: RecipePageProps) {
     );
 
     if (!res.ok) {
-        return (
-            <div>
-                <h1>There has been an error. Please try and reload the page.</h1>
-                <p>Status: {res.status}</p>
-            </div>
-        ) 
+        toast.error("There has been an error.", {
+            description: `Please try and reload the page. Error: ${res}`
+        })
     }
 
     const data = await res.json()   
@@ -48,7 +46,11 @@ export default async function RecipePage({ params }: RecipePageProps) {
     return (
          <main className="md:grid md:grid-cols-2 md:gap-8 gap-0 flex flex-col">
             <section className="p-4 flex flex-col items-center">
-                <Button className="font-light text-xl bg-[#004E89] text-[#EFEFD0] cursor-pointer hover:bg-[#1A659E] w-full mb-6"><Link href="/">Back</Link></Button>
+                <Link href="/" className="w-full">
+                    <Button className="font-light text-xl bg-[#004E89] text-[#EFEFD0] cursor-pointer hover:bg-[#1A659E] w-full mb-6">
+                        Back
+                    </Button>
+                </Link>
                 <div className="relative ml-2 mb-6 xl:w-[700px] xl:h-[500px] lg:w-[550px] lg:h-[400px] md:w-[375px] md:h-[300px] w-[350px] h-[250px]">
                     <Image 
                         src={data.image}
@@ -70,7 +72,8 @@ export default async function RecipePage({ params }: RecipePageProps) {
                     <AnimatedCard phrase={phrase} />
                 </div>
             </section>
-            <section className="flex flex-col items-center gap-4 md:bg-[url('/Background.png')] md:bg-no-repeat md:bg-center md:bg-cover p-4 h-screen">
+            <section className="relative flex flex-col items-center gap-4 md:bg-[url('/Background.png')] md:bg-no-repeat md:bg-center md:bg-cover py-4 px-16 h-screen">
+                <div className="absolute left-0 top-0 h-full xl:w-20 xl:pointer-events-none xl:bg-gradient-to-r xl:from-[#EFEFD0] xl:to-transparent"></div>
                 <h1 className="md:text-4xl text-2xl font-merriweather mb-6">{data.title}</h1>
                 <div className="flex flex-col justify-center items-center mb-6">
                     <Image src="/Ornament.png" alt="An ornament" width={300} height={200} className="mb-4"/>
