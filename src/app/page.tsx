@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { useDebounce } from 'use-debounce';
 import {
@@ -38,6 +38,8 @@ export default function Home() {
   const [selectedDish, setSelectedDish] = useState<Recipe | null>(null)
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [mealPlan, setMealPlan] = useState<Record<string, any>>({})
+
+  const wrapperRef = useRef<HTMLDivElement>(null)
 
   // Load from localStorage on mount
   useEffect(() => {
@@ -150,14 +152,42 @@ export default function Home() {
       return
     }
 
+    if (ingredients.includes(value.toLowerCase())) {
+      setSuggestions([]);
+      return;
+    }
+
     const filtered = ingredientList
-      .filter((item) =>
-        item.toLowerCase().startsWith(value.toLowerCase())
+      .filter(item =>
+        item.toLowerCase().startsWith(value.toLowerCase()) &&
+        !ingredients.includes(item.toLowerCase())
       )
       .slice(0, 6)
 
     setSuggestions(filtered)
   }
+
+  useEffect(() => {
+    function handleClickOutside(e: MouseEvent) {
+      if (wrapperRef.current && !wrapperRef.current.contains(e.target as Node)) {
+        setSuggestions([])
+      }
+    }
+
+    function handleEsc(e: KeyboardEvent) {
+      if (e.key === "Escape") {
+        setSuggestions([])
+      }
+    }
+
+    document.addEventListener("mousedown", handleClickOutside)
+    document.addEventListener("keydown", handleEsc)
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside)
+      document.removeEventListener("keydown", handleEsc)
+    }
+  }, [])
 
   // Meal plan management
   const handleOpen = (dish: Recipe) => {
@@ -262,7 +292,7 @@ export default function Home() {
           <h3>Your streak: 🔥{streak}</h3>
         </div>
         <div className='relative border border-[#828181] rounded-md bg-white flex flex-row items-center w-fit mb-6'>
-          <div className="relative">
+          <div ref={wrapperRef} className="relative">
             <input 
               value={input}
               type="text"
@@ -279,8 +309,9 @@ export default function Home() {
                   <li
                     key={item}
                     onClick={() => {
-                      setInput(item)
                       setSuggestions([])
+                      setIngredients(prev => [...prev, item.toLowerCase()])
+                      setInput("")
                     }}
                     className="p-2 cursor-pointer hover:bg-gray-100"
                   >
@@ -309,7 +340,7 @@ export default function Home() {
                 initial={{ opacity: 0, y: -20 }}      
                 animate={{ opacity: 1, y: 0 }}       
                 exit={{ opacity: 0, y: -20 }}      
-                transition={{ duration: 0.4 }}
+                transition={{ duration: 0.2 }}
               >
                 <h3 className=' text-lg font-light pr-3'>{ing}</h3>
                 <button onClick={() => removeIngredient(i)} className='cursor-pointer text-[#9E9E9E]'>✕</button>
