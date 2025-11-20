@@ -15,6 +15,7 @@ import MealPlanAddModal from '@/components/MealPlanAddModal';
 import DishCard from '../components/DishCard';
 import Image from 'next/image';
 import { ingredientList } from '@/lib/ingredients';
+import StreakAnimationModal from '@/components/StreakAnimationModal';
 
 type Recipe = {
   id: number,
@@ -35,6 +36,7 @@ export default function Home() {
 
   const [streak, setStreak] = useState<number>(0)
   const [openModal, setOpenModal] = useState<string | null>(null)
+  const [openStreakModal, setOpenStreakModal] = useState<string | null>(null)
   const [selectedDish, setSelectedDish] = useState<Recipe | null>(null)
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [mealPlan, setMealPlan] = useState<Record<string, any>>({})
@@ -269,11 +271,27 @@ export default function Home() {
       streakData.currentStreak = 1
     }
 
+    if ([1, 3, 7].includes(streakData.currentStreak)) {
+      setOpenStreakModal("streakAnimationModal")
+    }
+
     streakData.lastActiveDate = today
     localStorage.setItem("streak", JSON.stringify(streakData))
     setStreak(streakData.currentStreak)
     return streakData
   }
+
+  function getStreakMessage(streak: number) {
+    if (streak <= 2) {
+      return `Great start! Since you’re on day ${streak}, you’ll be getting quick and popular recipes to keep the momentum going.`;
+    } else if (streak <= 6) {
+      return `Congrats on day ${streak}! Your recipes are now getting slightly harder and a whole lot healthier.`;
+    } else {
+       return `Amazing! Day ${streak}! You’ve unlocked diverse world cuisines — Asian, Italian, Mexican and more!`;
+    }
+  }
+
+  const handleCloseStreakModal = () => setOpenStreakModal(null)
 
   return (
     <main className='xl:grid xl:grid-cols-3 flex flex-col min-h-screen'>
@@ -435,6 +453,7 @@ export default function Home() {
         
       </section>
       <MealPlanAddModal isOpen={openModal === 'mealPlanAdd'} onClose={handleClose} dish={selectedDish} onSave={handleSaveMealPlan} currentMeals={mealPlan}/>
+      <StreakAnimationModal isOpen={openStreakModal === 'streakAnimationModal'} onClose={handleCloseStreakModal} dayText={getStreakMessage(streak)} streakNumber={streak}/>
     </main>
   )
 };
