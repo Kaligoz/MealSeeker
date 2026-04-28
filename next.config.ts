@@ -3,7 +3,12 @@ import type { NextConfig } from "next";
 const nextConfig: NextConfig = {
   reactStrictMode: true,
   images: {
-    domains: ["img.spoonacular.com"], // allow Spoonacular images
+    domains: ["img.spoonacular.com"], 
+  },
+  experimental: {
+    serverActions: {
+      bodySizeLimit: '100mb', 
+    },
   },
 };
 
